@@ -6,6 +6,8 @@
  * @license MIT
  */
 
+import {c} from "compress-tag";
+
 /**
  * Matches every escape sequence possible, including invalid ones.
  */
@@ -86,9 +88,10 @@ function parseOctalCode(code: string, error: true): never;
 function parseOctalCode(code: string, error: boolean): string | never;
 function parseOctalCode(code: string, error: boolean = false): string | never {
   if (error) {
-    throw new SyntaxError(
-      '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-    );
+    throw new SyntaxError(c`
+      "0"-prefixed octal literals and octal escape sequences are deprecated; 
+      for octal literals use the "0o" prefix instead
+    `);
   } else {
     const parsedCode = parseInt(code, 8);
     return String.fromCharCode(parsedCode);
@@ -98,7 +101,7 @@ function parseOctalCode(code: string, error: boolean = false): string | never {
 /**
  * Replace raw escape character strings with their escape characters.
  * @param raw A string where escape characters are represented as raw string
- * values like `\t` rather than `	`.
+ * values like `\'` rather than `'`.
  * @param allowOctals If `true`, will process the now-deprecated octal escape
  * sequences (ie, `\111`).
  * @returns The processed string, with escape characters replaced by their
