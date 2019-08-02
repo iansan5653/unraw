@@ -64,6 +64,29 @@ function parseUnicodeCodePointCode(codePoint: string): string {
 }
 
 /**
+ * Parse an octal escape code.
+ * @param code An octal escape code. Assumed to be valid because an invalid
+ * octal escape code will never be matched.
+ * @param error If `true`, will throw an error without attempting to parse the
+ * code.
+ * @throws {SyntaxError} Only if `throw` is `true`. 
+ */
+function parseOctalCode(code: string, error: false): string;
+function parseOctalCode(code: string, error: true): never;
+// Have to give overload that takes boolean for when compiler doesn't know if true or false
+function parseOctalCode(code: string, error: boolean): string | never;
+function parseOctalCode(code: string, error: boolean = false): string | never {
+  if (error) {
+    throw new SyntaxError(
+      '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+    );
+  } else {
+    const parsedCode = parseInt(code, 8);
+    return String.fromCharCode(parsedCode);
+  }
+}
+
+/**
  * Replace raw escape character strings with their escape characters.
  * @param raw A string where escape characters are represented as raw string
  * values like `\t` rather than `	`.
@@ -110,14 +133,7 @@ export default function unraw(
       } else if (ch === "u") {
         return parseUnicodeCode(code, surrogateCode);
       } else if (!Number.isNaN(parseInt(ch, 10))) {
-        if (!allowOctals) {
-          throw new SyntaxError(
-            '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-          );
-        } else {
-          const parsedCode = parseInt(code, 8);
-          return String.fromCharCode(parsedCode);
-        }
+        return parseOctalCode(code, !allowOctals);
       } else {
         // "\\", "\"", "\'", "\A", "\9" ...
         return ch;
