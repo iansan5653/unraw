@@ -274,7 +274,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\xFF (minimum possible value)", function(): void {
+    context("\\xFF (maximum possible value)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\xFF`), `\xFF`);
       });
@@ -286,6 +286,21 @@ context("unraw", function(): void {
       });
       it("should parse with text around", function(): void {
         assert.strictEqual(unraw(raw`test\xFFtest`), `test\xFFtest`);
+      });
+    });
+
+    context("\\xfa (lowercase)", function(): void {
+      it("should parse alone", function(): void {
+        assert.strictEqual(unraw(raw`\xfa`), `\xfa`);
+      });
+      it("should parse with text after", function(): void {
+        assert.strictEqual(unraw(raw`\xfatest`), `\xfatest`);
+      });
+      it("should parse with text before", function(): void {
+        assert.strictEqual(unraw(raw`test\xfa`), `test\xfa`);
+      });
+      it("should parse with text around", function(): void {
+        assert.strictEqual(unraw(raw`test\xfatest`), `test\xfatest`);
       });
     });
 
@@ -325,47 +340,331 @@ context("unraw", function(): void {
       context("\\x5 (wrong number of digits)", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
-            unraw(raw`\\x5`);
-          }, new TypeError("malformed hexadecimal character escape sequence"));
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(raw`\\x5test`);
-          }, new TypeError("malformed hexadecimal character escape sequence"));
+            unraw(raw`\x5`);
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
-            unraw(raw`test\\x5`);
-          }, new TypeError("malformed hexadecimal character escape sequence"));
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(raw`test\\x5test`);
-          }, new TypeError("malformed hexadecimal character escape sequence"));
+            unraw(raw`test\x5`);
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
       });
 
       context("\\x$$ (non-hex characters)", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
-            unraw(raw`\\x$$`);
-          }, new TypeError("malformed hexadecimal character escape sequence"));
+            unraw(raw`\x$$`);
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
-            unraw(raw`\\x$$test`);
-          }, new TypeError("malformed hexadecimal character escape sequence"));
+            unraw(raw`\x$$test`);
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
-            unraw(raw`test\\x$$`);
-          }, new TypeError("malformed hexadecimal character escape sequence"));
+            unraw(raw`test\x$$`);
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
-            unraw(raw`test\\x$$test`);
-          }, new TypeError("malformed hexadecimal character escape sequence"));
+            unraw(raw`test\x$$test`);
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
+      });
+
+      it("should have the right error", function(): void {
+        let unrawErrorText = "";
+        let jsErrorText = "";
+        try {
+          unraw(raw`\x$$`);
+        } catch (e) {
+          unrawErrorText = e.toString();
+        }
+        try {
+          "\x$$";
+        } catch (e) {
+          jsErrorText = e.toString();
+        }
+        assert.strictEqual(unrawErrorText, jsErrorText);
+      });
+    });
+  });
+
+  describe("handles Unicode escape sequences", function(): void {
+    context("\\u0000 (minimum possible value)", function(): void {
+      it("should parse alone", function(): void {
+        assert.strictEqual(unraw(raw`\u0000`), `\u0000`);
+      });
+      it("should parse with text after", function(): void {
+        assert.strictEqual(unraw(raw`\u0000test`), `\u0000test`);
+      });
+      it("should parse with text before", function(): void {
+        assert.strictEqual(unraw(raw`test\u0000`), `test\u0000`);
+      });
+      it("should parse with text around", function(): void {
+        assert.strictEqual(unraw(raw`test\u0000test`), `test\u0000test`);
+      });
+    });
+
+    context("\\u5A5A (typical value)", function(): void {
+      it("should parse alone", function(): void {
+        assert.strictEqual(unraw(raw`\u5A5A`), `\u5A5A`);
+      });
+      it("should parse with text after", function(): void {
+        assert.strictEqual(unraw(raw`\u5A5Atest`), `\u5A5Atest`);
+      });
+      it("should parse with text before", function(): void {
+        assert.strictEqual(unraw(raw`test\u5A5A`), `test\u5A5A`);
+      });
+      it("should parse with text around", function(): void {
+        assert.strictEqual(unraw(raw`test\u5A5Atest`), `test\u5A5Atest`);
+      });
+    });
+
+    context("\\uFFFF (maximum possible value)", function(): void {
+      it("should parse alone", function(): void {
+        assert.strictEqual(unraw(raw`\uFFFF`), `\uFFFF`);
+      });
+      it("should parse with text after", function(): void {
+        assert.strictEqual(unraw(raw`\uFFFFtest`), `\uFFFFtest`);
+      });
+      it("should parse with text before", function(): void {
+        assert.strictEqual(unraw(raw`test\uFFFF`), `test\uFFFF`);
+      });
+      it("should parse with text around", function(): void {
+        assert.strictEqual(unraw(raw`test\uFFFFtest`), `test\uFFFFtest`);
+      });
+    });
+
+    context("\\ufafa (lowercase)", function(): void {
+      it("should parse alone", function(): void {
+        assert.strictEqual(unraw(raw`\ufafa`), `\ufafa`);
+      });
+      it("should parse with text after", function(): void {
+        assert.strictEqual(unraw(raw`\ufafatest`), `\ufafatest`);
+      });
+      it("should parse with text before", function(): void {
+        assert.strictEqual(unraw(raw`test\ufafa`), `test\ufafa`);
+      });
+      it("should parse with text around", function(): void {
+        assert.strictEqual(unraw(raw`test\ufafatest`), `test\ufafatest`);
+      });
+    });
+
+    describe("handles deeper escape levels", function(): void {
+      context("\\\\u5A5A (even number of escapes)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\\u5A5A`), `\\u5A5A`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\\u5A5Atest`), `\\u5A5Atest`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\\u5A5A`), `test\\u5A5A`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\\u5A5Atest`), `test\\u5A5Atest`);
+        });
+      });
+
+      context("\\\\\\u5A5A (odd number of escapes)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\\\u5A5A`), `\\\u5A5A`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\\\u5A5Atest`), `\\\u5A5Atest`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\\\u5A5A`), `test\\\u5A5A`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\\\u5A5Atest`), `test\\\u5A5Atest`);
+        });
+      });
+    });
+
+    describe("errors on invalid sequences", function(): void {
+      context("\\u5 (one digit)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`\u5`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`test\u5`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      context("\\u5A (two digits)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`\u5A`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`test\u5A`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      context("\\u5A5 (three digits)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`\u5A5`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`test\u5A5`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      context("\\u$$$$ (non-hex characters)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`\u$$$$`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`\u$$$$test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`test\u$$$$`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(raw`test\u$$$$test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      it("should have the right error", function(): void {
+        let unrawErrorText = "";
+        let jsErrorText = "";
+        try {
+          unraw(raw`\u$$$$`);
+        } catch (e) {
+          unrawErrorText = e.toString();
+        }
+        try {
+          "\u$$$$";
+        } catch (e) {
+          jsErrorText = e.toString();
+        }
+        assert.strictEqual(unrawErrorText, jsErrorText);
+      });
+    });
+
+    context("with surrogates", function(): void {
+      context("\\uD800\\uDC00 (minimum possible value)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\uD800\uDC00`), `\uD800\uDC00`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\uD800\uDC00test`), `\uD800\uDC00test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\uD800\uDC00`), `test\uD800\uDC00`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(
+            unraw(raw`test\uD800\uDC00test`),
+            `test\uD800\uDC00test`
+          );
+        });
+      });
+
+      context("\\uDA99\\uDD80 (typical value)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\uDA99\uDD80`), `\uDA99\uDD80`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\uDA99\uDD80test`), `\uDA99\uDD80test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\uDA99\uDD80`), `test\uDA99\uDD80`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(
+            unraw(raw`test\uDA99\uDD80test`),
+            `test\uDA99\uDD80test`
+          );
+        });
+      });
+
+      context("\\uDBFF\\uDFFF (maximum possible value)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\uDBFF\uDFFF`), `\uDBFF\uDFFF`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\uDBFF\uDFFFtest`), `\uDBFF\uDFFFtest`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\uDBFF\uDFFF`), `test\uDBFF\uDFFF`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(
+            unraw(raw`test\uDBFF\uDFFFtest`),
+            `test\uDBFF\uDFFFtest`
+          );
+        });
+      });
+
+      describe("handles deeper escape levels", function(): void {
+        context("\\\\uDA99\uDD80 (even number of escapes)", function(): void {
+          it("should parse alone", function(): void {
+            assert.strictEqual(unraw(raw`\\uDA99\uDD80`), `\\uDA99\uDD80`);
+          });
+          it("should parse with text after", function(): void {
+            assert.strictEqual(unraw(raw`\\uDA99\uDD80test`), `\\uDA99\uDD80test`);
+          });
+          it("should parse with text before", function(): void {
+            assert.strictEqual(unraw(raw`test\\uDA99\uDD80`), `test\\uDA99\uDD80`);
+          });
+          it("should parse with text around", function(): void {
+            assert.strictEqual(unraw(raw`test\\uDA99\uDD80test`), `test\\uDA99\uDD80test`);
+          });
+        });
+  
+        context("\\\\\\uDA99\uDD80 (odd number of escapes)", function(): void {
+          it("should parse alone", function(): void {
+            assert.strictEqual(unraw(raw`\\\uDA99\uDD80`), `\\\uDA99\uDD80`);
+          });
+          it("should parse with text after", function(): void {
+            assert.strictEqual(unraw(raw`\\\uDA99\uDD80test`), `\\\uDA99\uDD80test`);
+          });
+          it("should parse with text before", function(): void {
+            assert.strictEqual(unraw(raw`test\\\uDA99\uDD80`), `test\\\uDA99\uDD80`);
+          });
+          it("should parse with text around", function(): void {
+            assert.strictEqual(unraw(raw`test\\\uDA99\uDD80test`), `test\\\uDA99\uDD80test`);
+          });
+        });
+      });
+
+      describe("errors on invalid sequences", function(): void {
+        // TODO
       });
     });
   });
