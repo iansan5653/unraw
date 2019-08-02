@@ -62,7 +62,7 @@
         "ignoreUrls": true,
         "ignoreStrings": false,
         "ignoreTemplateLiterals": false,
-        "ignoreRegExpLiterals": false
+        "ignoreRegExpLiterals": true
       }
     ]
   },

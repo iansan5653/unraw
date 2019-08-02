@@ -1,4 +1,12 @@
 /**
+ * @file **unraw** | Convert raw escape sequences to their respective characters
+ * (undo `String.raw`).
+ * @author Ian Sanders
+ * @copyright 2019 Ian Sanders
+ * @license MIT
+ */
+
+/**
  * Matches every escape sequence possible, including invalid ones.
  */
 const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[\s\S]{0,4}|[0-7]{1,3}|[\s\S])/g;
@@ -50,7 +58,7 @@ function parseUnicodeCode(code: string, surrogateCode?: string): string {
 
 /**
  * Parse a Unicode code point escape code.
- * @param code A unicode escape code.
+ * @param codePoint A unicode escape code.
  * @throws {SyntaxError} If the code is not valid hex.
  */
 function parseUnicodeCodePointCode(codePoint: string): string {
@@ -69,11 +77,12 @@ function parseUnicodeCodePointCode(codePoint: string): string {
  * octal escape code will never be matched.
  * @param error If `true`, will throw an error without attempting to parse the
  * code.
- * @throws {SyntaxError} Only if `throw` is `true`. 
+ * @throws {SyntaxError} Only if `throw` is `true`.
  */
 function parseOctalCode(code: string, error: false): string;
 function parseOctalCode(code: string, error: true): never;
-// Have to give overload that takes boolean for when compiler doesn't know if true or false
+// Have to give overload that takes boolean for when compiler doesn't know if
+// true or false
 function parseOctalCode(code: string, error: boolean): string | never;
 function parseOctalCode(code: string, error: boolean = false): string | never {
   if (error) {
@@ -104,7 +113,7 @@ export default function unraw(
     (_, sequence: string, surrogateCode?: string): string => {
       const ch = sequence.charAt(0);
       // End at 5 to exclude surrogate if present
-      let code = sequence.substring(1, 5);
+      const code = sequence.substring(1, 5);
       if (ch === "0" && sequence.length === 1) {
         // When length > 1, handled as octal
         return "\0";
