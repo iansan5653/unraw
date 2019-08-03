@@ -636,7 +636,7 @@ context("unraw", function(): void {
       });
 
       describe("handles deeper escape levels", function(): void {
-        context("\\\\uDA99\uDD80 (even number of escapes)", function(): void {
+        context("\\\\uDA99\\uDD80 (even number of escapes)", function(): void {
           it("should parse alone", function(): void {
             assert.strictEqual(unraw(raw`\\uDA99\uDD80`), `\\uDA99\uDD80`);
           });
@@ -651,7 +651,7 @@ context("unraw", function(): void {
           });
         });
 
-        context("\\\\\\uDA99\uDD80 (odd number of escapes)", function(): void {
+        context("\\\\\\uDA99\\uDD80 (odd number of escapes)", function(): void {
           it("should parse alone", function(): void {
             assert.strictEqual(unraw(raw`\\\uDA99\uDD80`), `\\\uDA99\uDD80`);
           });
