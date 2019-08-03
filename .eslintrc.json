@@ -64,7 +64,8 @@
         "ignoreTemplateLiterals": false,
         "ignoreRegExpLiterals": true
       }
-    ]
+    ],
+    "mocha/no-skipped-tests": "off"
   },
   "parser": "@typescript-eslint/parser",
   "plugins": ["jsdoc", "mocha"]
