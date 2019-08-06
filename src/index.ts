@@ -127,6 +127,33 @@ function parseOctalCode(code: string, error: boolean = false): string | never {
 }
 
 /**
+ * Parse a single character escape sequence and return the matching character.
+ * If none is matched, returns `code`. Naively assumes `code.length == 1`.
+ * @param code A single character code.
+ */
+function parseSingleCharacterCode(code: string): string {
+  switch (code) {
+    case "b":
+      return "\b";
+    case "f":
+      return "\f";
+    case "n":
+      return "\n";
+    case "r":
+      return "\r";
+    case "t":
+      return "\t";
+    case "v":
+      return "\v";
+    case "0":
+      return "\0";
+    default:
+      // Handles quotes and backslashes as well as anything else
+      return code;
+  }
+}
+
+/**
  * Matches every escape sequence possible, including invalid ones.
  *
  * All capture groups (described below) are unique (only one will match), except
@@ -171,23 +198,8 @@ export default function unraw(
     // Compare groups to undefined because empty strings mean different errors
     if (backslash !== undefined) return "\\";
     if (octalCode === "0") return "\0";
-    if (singleCharacter !== undefined) {
-      if (singleCharacter === "b") {
-        return "\b";
-      } else if (singleCharacter === "f") {
-        return "\f";
-      } else if (singleCharacter === "n") {
-        return "\n";
-      } else if (singleCharacter === "r") {
-        return "\r";
-      } else if (singleCharacter === "t") {
-        return "\t";
-      } else if (singleCharacter === "v") {
-        return "\v";
-      } else {
-        return singleCharacter;
-      }
-    }
+    if (singleCharacter !== undefined)
+      return parseSingleCharacterCode(singleCharacter);
     if (hex !== undefined) return parseHexadecimalCode(hex);
     if (codePoint !== undefined) return parseUnicodeCodePointCode(codePoint);
     if (unicodeWithSurrogate !== undefined)
