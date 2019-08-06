@@ -1014,4 +1014,231 @@ context("unraw", function(): void {
       });
     });
   });
+
+  describe("handles octal escape sequences", function(): void {
+    context("with octals disallowed", function(): void {
+      context("\\0 (not an octal sequence)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\0`, false), `\0`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\0test`, false), `\0test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\0`, false), `test\0`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\0test`, false), `test\0test`);
+        });
+      });
+
+      context("\\800 (not an octal sequence)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\800`, false), `\800`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\800test`, false), `\800test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\800`, false), `test\800`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\800test`, false), `test\800test`);
+        });
+      });
+
+      describe("errors on octal sequences", function(): void {
+        context("\\1 (single digit)", function(): void {
+          it("should error alone", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`\1`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+          it("should error with text after", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`\1test`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+          it("should error with text before", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`test\1`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+          it("should error with text around", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`test\1test`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+        });
+
+        context("\\00 (double digit)", function(): void {
+          it("should error alone", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`\00`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+          it("should error with text after", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`\00test`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+          it("should error with text before", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`test\00`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+          it("should error with text around", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`test\00test`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+        });
+
+        context("\\101 (triple digit)", function(): void {
+          it("should error alone", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`\101`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+          it("should error with text after", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`\101test`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+          it("should error with text before", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`test\101`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+          it("should error with text around", function(): void {
+            assert.throws(function(): void {
+              unraw(raw`test\101test`, false);
+            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+          });
+        });
+      });
+    });
+
+    context("with octals allowed", function(): void {
+      context("\\0 (not an octal sequence)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\0`, true), `\0`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\0test`, true), `\0test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\0`, true), `test\0`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\0test`, true), `test\0test`);
+        });
+      });
+
+      context("\\1 (single digit)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\1`, true), `\1`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\1test`, true), `\1test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\1`, true), `test\1`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\1test`, true), `test\1test`);
+        });
+      });
+
+      context("\\11 (two digits)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\11`, true), `\11`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\11test`, true), `\11test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\11`, true), `test\11`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\11test`, true), `test\11test`);
+        });
+      });
+
+      context("\\101 (three digits)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\101`, true), `\101`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\101test`, true), `\101test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\101`, true), `test\101`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\101test`, true), `test\101test`);
+        });
+      });
+
+      context("\\00 (minimum value)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\00`, true), `\00`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\00test`, true), `\00test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\00`, true), `test\00`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\00test`, true), `test\00test`);
+        });
+      });
+
+      context("\\377 (maximum value)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\377`, true), `\377`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\377test`, true), `\377test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\377`, true), `test\377`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\377test`, true), `test\377test`);
+        });
+      });
+
+      context("\\400 (higher than maximum value)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\400`, true), `\400`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\400test`, true), `\400test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\400`, true), `test\400`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\400test`, true), `test\400test`);
+        });
+      });
+
+      context("\\119 (non-octal digit)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\119`, true), `\119`);
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\119test`, true), `\119test`);
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\119`, true), `test\119`);
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\119test`, true), `test\119test`);
+        });
+      });
+    });
+  });
 });
