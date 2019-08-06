@@ -21,7 +21,7 @@ context("unraw", function(): void {
   });
 
   describe("handles single character escape sequences", function(): void {
-    context("\\b", function(): void {
+    context("\\b (backspace)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\b`), `\b`);
       });
@@ -36,7 +36,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\f", function(): void {
+    context("\\f (form feed)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\f`), `\f`);
       });
@@ -51,7 +51,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\n", function(): void {
+    context("\\n (newline)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\n`), `\n`);
       });
@@ -66,7 +66,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\r", function(): void {
+    context("\\r (carriage return)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\r`), `\r`);
       });
@@ -81,7 +81,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\t", function(): void {
+    context("\\t (tab)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\t`), `\t`);
       });
@@ -96,7 +96,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\v", function(): void {
+    context("\\v (vertical tab)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\v`), `\v`);
       });
@@ -111,7 +111,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\0", function(): void {
+    context("\\0 (null)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\0`), `\0`);
       });
@@ -126,7 +126,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\'", function(): void {
+    context("\\' (single quote)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\'`), `\'`);
       });
@@ -141,7 +141,7 @@ context("unraw", function(): void {
       });
     });
 
-    context('\\"', function(): void {
+    context('\\" (double quote)', function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\"`), `\"`);
       });
@@ -156,7 +156,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\\\", function(): void {
+    context("\\\\ (backslash)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\\`), `\\`);
       });
@@ -171,7 +171,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\`", function(): void {
+    context("\\` (backtick)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\``), `\``);
       });
@@ -186,7 +186,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\$", function(): void {
+    context("\\$ (dollar sign)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\$`), `\$`);
       });
@@ -201,7 +201,7 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\A", function(): void {
+    context("\\A (unnecessary escape)", function(): void {
       it("should parse alone", function(): void {
         assert.strictEqual(unraw(raw`\A`), `\A`);
       });
