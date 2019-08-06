@@ -337,7 +337,24 @@ context("unraw", function(): void {
     });
 
     describe("errors on invalid sequences", function(): void {
-      context("\\x5 (wrong number of digits)", function(): void {
+      context("\\x (zero digits)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\x`);
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\x`);
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
+        });
+      });
+
+      context("\\x5 (one digit)", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\x5`);
@@ -386,6 +403,7 @@ context("unraw", function(): void {
       });
 
       it.skip("should have the right error", function(): void {
+        // Throws a syntax error in the TS compiler so it can't be compiled
         /*
         let unrawErrorText = "";
         let jsErrorText = "";
@@ -395,7 +413,7 @@ context("unraw", function(): void {
           unrawErrorText = e.toString();
         }
         try {
-          "\x$$"; // This throws a syntax error in the TS compiler
+          "\x$$";
         } catch (e) {
           jsErrorText = e.toString();
         }
@@ -499,6 +517,19 @@ context("unraw", function(): void {
     });
 
     describe("errors on invalid sequences", function(): void {
+      context("\\u (zero digits)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
       context("\\u5 (one digit)", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
@@ -562,6 +593,7 @@ context("unraw", function(): void {
       });
 
       it.skip("should have the right error", function(): void {
+        // Throws a syntax error in the TS compiler so it can't be compiled
         /*
         let unrawErrorText = "";
         let jsErrorText = "";
@@ -571,7 +603,7 @@ context("unraw", function(): void {
           unrawErrorText = e.toString();
         }
         try {
-          "\u$$$$"; // Throws a syntax error in the TS compiler
+          "\u$$$$";
         } catch (e) {
           jsErrorText = e.toString();
         }
@@ -668,7 +700,99 @@ context("unraw", function(): void {
       });
 
       describe("errors on invalid sequences", function(): void {
-        // TODO
+        context("\\uDA99\\u (zero digits)", function(): void {
+          it("should error alone", function(): void {
+            assert.throws(function(): void {
+              unraw(`\\uDA99\\u`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+          it("should error with text before", function(): void {
+            assert.throws(function(): void {
+              unraw(`test\\uDA99\\u`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+        });
+
+        context("\\uDA99\\uD (one digit)", function(): void {
+          it("should error alone", function(): void {
+            assert.throws(function(): void {
+              unraw(`\\uDA99\\uD`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+          it("should error with text before", function(): void {
+            assert.throws(function(): void {
+              unraw(`test\\uDA99\\uD`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+        });
+  
+        context("\\uDA99\\uDD (two digits)", function(): void {
+          it("should error alone", function(): void {
+            assert.throws(function(): void {
+              unraw(`\\uDA99\\uDD`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+          it("should error with text before", function(): void {
+            assert.throws(function(): void {
+              unraw(`test\\uDA99\\uDD`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+        });
+  
+        context("\\uDA99\\uDD8 (three digits)", function(): void {
+          it("should error alone", function(): void {
+            assert.throws(function(): void {
+              unraw(`\\uDA99\\uDD8`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+          it("should error with text before", function(): void {
+            assert.throws(function(): void {
+              unraw(`test\\uDA99\\uDD8`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+        });
+  
+        context("\\uDA99\\u$$$$ (non-hex characters)", function(): void {
+          it("should error alone", function(): void {
+            assert.throws(function(): void {
+              unraw(`\\uDA99\\u$$$$`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+          it("should error with text after", function(): void {
+            assert.throws(function(): void {
+              unraw(`\\uDA99\\u$$$$test`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+          it("should error with text before", function(): void {
+            assert.throws(function(): void {
+              unraw(`test\\uDA99\\u$$$$`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+          it("should error with text around", function(): void {
+            assert.throws(function(): void {
+              unraw(`test\\uDA99\\u$$$$test`);
+            }, new SyntaxError("malformed Unicode character escape sequence"));
+          });
+        });
+  
+        it.skip("should have the right error", function(): void {
+          // Throws a syntax error in the TS compiler so it can't be compiled
+          /*
+          let unrawErrorText = "";
+          let jsErrorText = "";
+          try {
+            unraw(raw`\uDA99\u$$$$`);
+          } catch (e) {
+            unrawErrorText = e.toString();
+          }
+          try {
+            "\uDA99\u$$$$";
+          } catch (e) {
+            jsErrorText = e.toString();
+          }
+          assert.strictEqual(unrawErrorText, jsErrorText);
+          */
+        });
       });
     });
   });
