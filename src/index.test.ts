@@ -14,6 +14,10 @@ import unraw from "./index";
 const raw = String.raw;
 
 context("unraw", function(): void {
+  it("should ignore strings with no escape sequences", function(): void {
+    assert.strictEqual(unraw("test"), "test");
+  });
+
   it("should error on 0-length escape sequence", function(): void {
     assert.throws(function(): void {
       unraw("test\\");

@@ -15,7 +15,7 @@ import {c} from "compress-tag";
  * @param hex A string containing a hexadecimal number.
  */
 function hexToInt(hex: string) {
-  if(hex.match(/[^a-f0-9]/i) !== null) {
+  if (hex.match(/[^a-f0-9]/i) !== null) {
     // Matches the first non-hex symbol in the string
     return NaN;
   } else {
@@ -70,18 +70,25 @@ function parseUnicodeCode(code: string, surrogateCode?: string): string {
 
 /**
  * Parse a Unicode code point escape code.
- * @param codePoint A unicode escape code.
- * @throws {SyntaxError} If the code is not valid hex.
+ * @param codePoint A unicode escape code, including the surrounding curly
+ * braces.
+ * @throws {SyntaxError} If the code is not valid hex or does not have the
+ * surrounding curly braces.
  */
 function parseUnicodeCodePointCode(codePoint: string): string {
-  const parsedCode = hexToInt(codePoint);
-  if (Number.isNaN(parsedCode)) {
+  const lastIndex = codePoint.length - 1;
+  const parsedCode = hexToInt(codePoint.substring(1, lastIndex));
+  if (
+    codePoint.charAt(0) !== "{" ||
+    codePoint.charAt(lastIndex) !== "}" ||
+    Number.isNaN(parsedCode)
+  ) {
     // ie, "\u$$$$" or "\uF8"
     throw new SyntaxError("malformed Unicode character escape sequence");
   }
   try {
     return String.fromCodePoint(parsedCode);
-  } catch(err) {
+  } catch (err) {
     if (err instanceof RangeError) {
       throw new SyntaxError(c`
         Unicode codepoint must not be greater than 0x10FFFF in escape sequence
@@ -121,8 +128,21 @@ function parseOctalCode(code: string, error: boolean = false): string | never {
 
 /**
  * Matches every escape sequence possible, including invalid ones.
+ *
+ * All capture groups (described below) are unique (only one will match), except
+ * for 3 and 4 which always match together.
+ *
+ * **Capture Groups:**
+ * 0. A single backslash
+ * 1. Hexadecimal code
+ * 2. Unicode code point code with surrounding curly braces
+ * 3. Unicode escape code with surrogate
+ * 4. Surrogate code
+ * 5. Unicode escape code without surrogate
+ * 6. Octal code _NOTE: includes "0"._
+ * 7. A single character (will never be \, x, u, or 0-3)
  */
-const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[\s\S]{0,4}|([0-3]?[0-7]{1,2})|[\s\S]|$)/g;
+const escapeMatch = /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([\s\S]{0,4})|u([\s\S]{0,4})|([0-3]?[0-7]{1,2})|([\s\S])|$)/g;
 
 /**
  * Replace raw escape character strings with their escape characters.
@@ -137,51 +157,43 @@ export default function unraw(
   raw: string,
   allowOctals: boolean = false
 ): string {
-  return raw.replace(
-    escapeMatch,
-    (_, sequence: string, surrogateCode?: string, octalCode?: string): string => {
-      const ch = sequence.charAt(0);
-      // End at 5 to exclude surrogate if present
-      const code = sequence.substring(1, 5);
-      if (ch.length === 0) {
-        // NOTE: This is a deviation from normal behavior because this is
-        // impossible in a normal string (String.raw`\` can never happen because
-        // \ escapes `).
-        throw new SyntaxError("malformed escape sequence at end of string");
-      } else if(ch === "0" && sequence.length === 1) {
-        // When length > 1, handled as octal
-        return "\0";
-      } else if (ch === "b") {
+  return raw.replace(escapeMatch, function(
+    _,
+    backslash?: string,
+    hex?: string,
+    codePoint?: string,
+    unicodeWithSurrogate?: string,
+    surrogate?: string,
+    unicode?: string,
+    octalCode?: string,
+    singleCharacter?: string
+  ): string {
+    // Compare groups to undefined because empty strings mean different errors
+    if (backslash !== undefined) return "\\";
+    if (octalCode === "0") return "\0";
+    if (singleCharacter !== undefined) {
+      if (singleCharacter === "b") {
         return "\b";
-      } else if (ch === "f") {
+      } else if (singleCharacter === "f") {
         return "\f";
-      } else if (ch === "n") {
+      } else if (singleCharacter === "n") {
         return "\n";
-      } else if (ch === "r") {
+      } else if (singleCharacter === "r") {
         return "\r";
-      } else if (ch === "t") {
+      } else if (singleCharacter === "t") {
         return "\t";
-      } else if (ch === "v") {
+      } else if (singleCharacter === "v") {
         return "\v";
-      } else if (ch === "x") {
-        return parseHexadecimalCode(sequence.substring(1));
-      } else if (
-        ch === "u" &&
-        sequence.charAt(1) === "{" &&
-        sequence.charAt(sequence.length - 1) === "}"
-      ) {
-        return parseUnicodeCodePointCode(
-          sequence.substring(2, sequence.length - 1)
-        );
-      } else if (ch === "u") {
-        return parseUnicodeCode(code, surrogateCode);
-      } else if (octalCode) {
-        // Use `sequence` because `code` is without first digit
-        return parseOctalCode(sequence, !allowOctals);
       } else {
-        // "\\", "\"", "\'", "\A", "\9" ...
-        return ch;
+        return singleCharacter;
       }
     }
-  );
+    if (hex !== undefined) return parseHexadecimalCode(hex);
+    if (codePoint !== undefined) return parseUnicodeCodePointCode(codePoint);
+    if (unicodeWithSurrogate !== undefined)
+      return parseUnicodeCode(unicodeWithSurrogate, surrogate);
+    if (unicode !== undefined) return parseUnicodeCode(unicode);
+    if (octalCode !== undefined) return parseOctalCode(octalCode, !allowOctals);
+    throw new SyntaxError("malformed escape sequence at end of string");
+  });
 }
