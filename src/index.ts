@@ -11,7 +11,7 @@ import {c} from "compress-tag";
 /**
  * Matches every escape sequence possible, including invalid ones.
  */
-const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[\s\S]{0,4}|[0-7]{1,3}|[\s\S]|$)/g;
+const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[\s\S]{0,4}|([0-3]?[0-7]{1,2})|[\s\S]|$)/g;
 
 /**
  * Parse a string as a base-16 number. This is more strict than parseInt as it
@@ -139,7 +139,7 @@ export default function unraw(
 ): string {
   return raw.replace(
     escapeMatch,
-    (_, sequence: string, surrogateCode?: string): string => {
+    (_, sequence: string, surrogateCode?: string, octalCode?: string): string => {
       const ch = sequence.charAt(0);
       // End at 5 to exclude surrogate if present
       const code = sequence.substring(1, 5);
@@ -175,8 +175,9 @@ export default function unraw(
         );
       } else if (ch === "u") {
         return parseUnicodeCode(code, surrogateCode);
-      } else if (!Number.isNaN(parseInt(ch, 10))) {
-        return parseOctalCode(code, !allowOctals);
+      } else if (octalCode) {
+        // Use `sequence` because `code` is without first digit
+        return parseOctalCode(sequence, !allowOctals);
       } else {
         // "\\", "\"", "\'", "\A", "\9" ...
         return ch;
