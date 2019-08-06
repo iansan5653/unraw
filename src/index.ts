@@ -55,8 +55,8 @@ function parseUnicodeCode(code: string, surrogateCode?: string): string {
     throw new SyntaxError("malformed Unicode character escape sequence");
   }
 
-  let parsedSurrogateCode: number | undefined = undefined;
   if (surrogateCode !== undefined) {
+    let parsedSurrogateCode: number | undefined = undefined;
     parsedSurrogateCode = parseInt(surrogateCode, 16);
     if (surrogateCode.length !== 4 || Number.isNaN(parsedSurrogateCode)) {
       // ie, "\u00FF\uF" or "\u00FF\u$$$$"
