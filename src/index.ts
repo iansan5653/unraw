@@ -141,11 +141,11 @@ export default function unraw(
         return parseHexadecimalCode(sequence.substring(1));
       } else if (
         ch === "u" &&
-        sequence.charAt(2) === "{" &&
+        sequence.charAt(1) === "{" &&
         sequence.charAt(sequence.length - 1) === "}"
       ) {
         return parseUnicodeCodePointCode(
-          sequence.substring(3, sequence.length - 1)
+          sequence.substring(2, sequence.length - 1)
         );
       } else if (ch === "u") {
         return parseUnicodeCode(code, surrogateCode);
