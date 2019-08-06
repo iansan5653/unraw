@@ -14,7 +14,7 @@ import {c} from "compress-tag";
  * ".".
  * @param hex A string containing a hexadecimal number.
  */
-function hexToInt(hex: string) {
+function hexToInt(hex: string): number {
   if (hex.match(/[^a-f0-9]/i) !== null) {
     // Matches the first non-hex symbol in the string
     return NaN;

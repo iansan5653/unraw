@@ -21,7 +21,7 @@ context("unraw", function(): void {
   it("should error on 0-length escape sequence", function(): void {
     assert.throws(function(): void {
       unraw("test\\");
-    }, new SyntaxError("malformed escape sequence at end of string"))
+    }, new SyntaxError("malformed escape sequence at end of string"));
   });
 
   describe("handles single character escape sequences", function(): void {
@@ -416,22 +416,30 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\x-A`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\x-Atest`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x-A`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x-Atest`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
       });
 
@@ -439,22 +447,30 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\x+A`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\x+Atest`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x+A`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x+Atest`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
       });
 
@@ -462,22 +478,30 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\xA.`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\xA.test`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\xA.`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\xA.test`);
-          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+          }, new SyntaxError(
+            "malformed hexadecimal character escape sequence"
+          ));
         });
       });
 
@@ -821,13 +845,22 @@ context("unraw", function(): void {
             assert.strictEqual(unraw(raw`\\uDA99\uDD80`), `\\uDA99\uDD80`);
           });
           it("should parse with text after", function(): void {
-            assert.strictEqual(unraw(raw`\\uDA99\uDD80test`), `\\uDA99\uDD80test`);
+            assert.strictEqual(
+              unraw(raw`\\uDA99\uDD80test`),
+              `\\uDA99\uDD80test`
+            );
           });
           it("should parse with text before", function(): void {
-            assert.strictEqual(unraw(raw`test\\uDA99\uDD80`), `test\\uDA99\uDD80`);
+            assert.strictEqual(
+              unraw(raw`test\\uDA99\uDD80`),
+              `test\\uDA99\uDD80`
+            );
           });
           it("should parse with text around", function(): void {
-            assert.strictEqual(unraw(raw`test\\uDA99\uDD80test`), `test\\uDA99\uDD80test`);
+            assert.strictEqual(
+              unraw(raw`test\\uDA99\uDD80test`),
+              `test\\uDA99\uDD80test`
+            );
           });
         });
 
@@ -836,13 +869,22 @@ context("unraw", function(): void {
             assert.strictEqual(unraw(raw`\\\uDA99\uDD80`), `\\\uDA99\uDD80`);
           });
           it("should parse with text after", function(): void {
-            assert.strictEqual(unraw(raw`\\\uDA99\uDD80test`), `\\\uDA99\uDD80test`);
+            assert.strictEqual(
+              unraw(raw`\\\uDA99\uDD80test`),
+              `\\\uDA99\uDD80test`
+            );
           });
           it("should parse with text before", function(): void {
-            assert.strictEqual(unraw(raw`test\\\uDA99\uDD80`), `test\\\uDA99\uDD80`);
+            assert.strictEqual(
+              unraw(raw`test\\\uDA99\uDD80`),
+              `test\\\uDA99\uDD80`
+            );
           });
           it("should parse with text around", function(): void {
-            assert.strictEqual(unraw(raw`test\\\uDA99\uDD80test`), `test\\\uDA99\uDD80test`);
+            assert.strictEqual(
+              unraw(raw`test\\\uDA99\uDD80test`),
+              `test\\\uDA99\uDD80test`
+            );
           });
         });
       });
@@ -873,7 +915,7 @@ context("unraw", function(): void {
             }, new SyntaxError("malformed Unicode character escape sequence"));
           });
         });
-  
+
         context("\\uDA99\\uDD (two digits)", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
@@ -886,7 +928,7 @@ context("unraw", function(): void {
             }, new SyntaxError("malformed Unicode character escape sequence"));
           });
         });
-  
+
         context("\\uDA99\\uDD8 (three digits)", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
@@ -899,7 +941,7 @@ context("unraw", function(): void {
             }, new SyntaxError("malformed Unicode character escape sequence"));
           });
         });
-  
+
         context("\\uDA99\\u$$$$ (non-hex characters)", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
@@ -922,7 +964,7 @@ context("unraw", function(): void {
             }, new SyntaxError("malformed Unicode character escape sequence"));
           });
         });
-  
+
         it.skip("should have the right error", function(): void {
           // Throws a syntax error in the TS compiler so it can't be compiled
           /*
@@ -1008,16 +1050,28 @@ context("unraw", function(): void {
 
     context("\\u{000000000000000000005A5A} (leading zeros)", function(): void {
       it("should parse alone", function(): void {
-        assert.strictEqual(unraw(raw`\u{000000000000000000005A5A}`), `\u{000000000000000000005A5A}`);
+        assert.strictEqual(
+          unraw(raw`\u{000000000000000000005A5A}`),
+          `\u{000000000000000000005A5A}`
+        );
       });
       it("should parse with text after", function(): void {
-        assert.strictEqual(unraw(raw`\u{000000000000000000005A5A}test`), `\u{000000000000000000005A5A}test`);
+        assert.strictEqual(
+          unraw(raw`\u{000000000000000000005A5A}test`),
+          `\u{000000000000000000005A5A}test`
+        );
       });
       it("should parse with text before", function(): void {
-        assert.strictEqual(unraw(raw`test\u{000000000000000000005A5A}`), `test\u{000000000000000000005A5A}`);
+        assert.strictEqual(
+          unraw(raw`test\u{000000000000000000005A5A}`),
+          `test\u{000000000000000000005A5A}`
+        );
       });
       it("should parse with text around", function(): void {
-        assert.strictEqual(unraw(raw`test\u{000000000000000000005A5A}test`), `test\u{000000000000000000005A5A}test`);
+        assert.strictEqual(
+          unraw(raw`test\u{000000000000000000005A5A}test`),
+          `test\u{000000000000000000005A5A}test`
+        );
       });
     });
 
@@ -1033,7 +1087,10 @@ context("unraw", function(): void {
           assert.strictEqual(unraw(raw`test\\u{5A5A}`), `test\\u{5A5A}`);
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\\u{5A5A}test`), `test\\u{5A5A}test`);
+          assert.strictEqual(
+            unraw(raw`test\\u{5A5A}test`),
+            `test\\u{5A5A}test`
+          );
         });
       });
 
@@ -1048,7 +1105,10 @@ context("unraw", function(): void {
           assert.strictEqual(unraw(raw`test\\\u{5A5A}`), `test\\\u{5A5A}`);
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\\\u{5A5A}test`), `test\\\u{5A5A}test`);
+          assert.strictEqual(
+            unraw(raw`test\\\u{5A5A}test`),
+            `test\\\u{5A5A}test`
+          );
         });
       });
     });
@@ -1081,22 +1141,30 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{FFFFFF}`);
-          }, new SyntaxError("Unicode codepoint must not be greater than 0x10FFFF in escape sequence"));
+          }, new SyntaxError(
+            "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
+          ));
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{FFFFFF}test`);
-          }, new SyntaxError("Unicode codepoint must not be greater than 0x10FFFF in escape sequence"));
+          }, new SyntaxError(
+            "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
+          ));
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{FFFFFF}`);
-          }, new SyntaxError("Unicode codepoint must not be greater than 0x10FFFF in escape sequence"));
+          }, new SyntaxError(
+            "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
+          ));
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{FFFFFF}test`);
-          }, new SyntaxError("Unicode codepoint must not be greater than 0x10FFFF in escape sequence"));
+          }, new SyntaxError(
+            "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
+          ));
         });
       });
 
@@ -1233,46 +1301,46 @@ context("unraw", function(): void {
     context("with octals disallowed", function(): void {
       context("\\0 (not an octal sequence)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\0`, false), '\0');
+          assert.strictEqual(unraw(raw`\0`, false), "\0");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\0test`, false), '\0test');
+          assert.strictEqual(unraw(raw`\0test`, false), "\0test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\0`, false), 'test\0');
+          assert.strictEqual(unraw(raw`test\0`, false), "test\0");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\0test`, false), 'test\0test');
+          assert.strictEqual(unraw(raw`test\0test`, false), "test\0test");
         });
       });
 
       context("\\800 (not an octal sequence)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\800`, false), '\800');
+          assert.strictEqual(unraw(raw`\800`, false), "800");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\800test`, false), '\800test');
+          assert.strictEqual(unraw(raw`\800test`, false), "800test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\800`, false), 'test\800');
+          assert.strictEqual(unraw(raw`test\800`, false), "test800");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\800test`, false), 'test\800test');
+          assert.strictEqual(unraw(raw`test\800test`, false), "test800test");
         });
       });
 
       context("\\+1 (not an octal sequence)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\+1`, false), '\+1');
+          assert.strictEqual(unraw(raw`\+1`, false), "+1");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\+1test`, false), '\+1test');
+          assert.strictEqual(unraw(raw`\+1test`, false), "+1test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\+1`, false), 'test\+1');
+          assert.strictEqual(unraw(raw`test\+1`, false), "test+1");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\+1test`, false), 'test\+1test');
+          assert.strictEqual(unraw(raw`test\+1test`, false), "test+1test");
         });
       });
 
@@ -1281,22 +1349,30 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(raw`\1`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
           it("should error with text after", function(): void {
             assert.throws(function(): void {
               unraw(raw`\1test`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\1`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
           it("should error with text around", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\1test`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
         });
 
@@ -1304,22 +1380,30 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(raw`\00`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
           it("should error with text after", function(): void {
             assert.throws(function(): void {
               unraw(raw`\00test`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\00`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
           it("should error with text around", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\00test`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
         });
 
@@ -1327,22 +1411,30 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(raw`\101`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
           it("should error with text after", function(): void {
             assert.throws(function(): void {
               unraw(raw`\101test`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\101`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
           it("should error with text around", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\101test`, false);
-            }, new SyntaxError('"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'))
+            }, new SyntaxError(
+              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+            ));
           });
         });
       });
@@ -1354,136 +1446,136 @@ context("unraw", function(): void {
 
       context("\\0 (not an octal sequence)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\0`, true), '\0');
+          assert.strictEqual(unraw(raw`\0`, true), "\0");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\0test`, true), '\0test');
+          assert.strictEqual(unraw(raw`\0test`, true), "\0test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\0`, true), 'test\0');
+          assert.strictEqual(unraw(raw`test\0`, true), "test\0");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\0test`, true), 'test\0test');
+          assert.strictEqual(unraw(raw`test\0test`, true), "test\0test");
         });
       });
 
       context("\\+1 (not an octal sequence)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\+1`, false), '\+1');
+          assert.strictEqual(unraw(raw`\+1`, false), "+1");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\+1test`, false), '\+1test');
+          assert.strictEqual(unraw(raw`\+1test`, false), "+1test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\+1`, false), 'test\+1');
+          assert.strictEqual(unraw(raw`test\+1`, false), "test+1");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\+1test`, false), 'test\+1test');
+          assert.strictEqual(unraw(raw`test\+1test`, false), "test+1test");
         });
       });
 
       context("\\1 (single digit)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\1`, true), '\u0001');
+          assert.strictEqual(unraw(raw`\1`, true), "\u0001");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\1test`, true), '\u0001test');
+          assert.strictEqual(unraw(raw`\1test`, true), "\u0001test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\1`, true), 'test\u0001');
+          assert.strictEqual(unraw(raw`test\1`, true), "test\u0001");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\1test`, true), 'test\u0001test');
+          assert.strictEqual(unraw(raw`test\1test`, true), "test\u0001test");
         });
       });
 
       context("\\11 (two digits)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\11`, true), '\u0009');
+          assert.strictEqual(unraw(raw`\11`, true), "\u0009");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\11test`, true), '\u0009test');
+          assert.strictEqual(unraw(raw`\11test`, true), "\u0009test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\11`, true), 'test\u0009');
+          assert.strictEqual(unraw(raw`test\11`, true), "test\u0009");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\11test`, true), 'test\u0009test');
+          assert.strictEqual(unraw(raw`test\11test`, true), "test\u0009test");
         });
       });
 
       context("\\101 (three digits)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\101`, true), '\u0041');
+          assert.strictEqual(unraw(raw`\101`, true), "\u0041");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\101test`, true), '\u0041test');
+          assert.strictEqual(unraw(raw`\101test`, true), "\u0041test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\101`, true), 'test\u0041');
+          assert.strictEqual(unraw(raw`test\101`, true), "test\u0041");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\101test`, true), 'test\u0041test');
+          assert.strictEqual(unraw(raw`test\101test`, true), "test\u0041test");
         });
       });
 
       context("\\00 (minimum value)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\00`, true), '\u0000');
+          assert.strictEqual(unraw(raw`\00`, true), "\u0000");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\00test`, true), '\u0000test');
+          assert.strictEqual(unraw(raw`\00test`, true), "\u0000test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\00`, true), 'test\u0000');
+          assert.strictEqual(unraw(raw`test\00`, true), "test\u0000");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\00test`, true), 'test\u0000test');
+          assert.strictEqual(unraw(raw`test\00test`, true), "test\u0000test");
         });
       });
 
       context("\\377 (maximum value)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\377`, true), '\u00FF');
+          assert.strictEqual(unraw(raw`\377`, true), "\u00FF");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\377test`, true), '\u00FFtest');
+          assert.strictEqual(unraw(raw`\377test`, true), "\u00FFtest");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\377`, true), 'test\u00FF');
+          assert.strictEqual(unraw(raw`test\377`, true), "test\u00FF");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\377test`, true), 'test\u00FFtest');
+          assert.strictEqual(unraw(raw`test\377test`, true), "test\u00FFtest");
         });
       });
 
       context("\\400 (higher than maximum value)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\400`, true), '\u00200');
+          assert.strictEqual(unraw(raw`\400`, true), "\u00200");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\400test`, true), '\u00200test');
+          assert.strictEqual(unraw(raw`\400test`, true), "\u00200test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\400`, true), 'test\u00200');
+          assert.strictEqual(unraw(raw`test\400`, true), "test\u00200");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\400test`, true), 'test\u00200test');
+          assert.strictEqual(unraw(raw`test\400test`, true), "test\u00200test");
         });
       });
 
       context("\\119 (non-octal digit)", function(): void {
         it("should parse alone", function(): void {
-          assert.strictEqual(unraw(raw`\119`, true), '\u00099');
+          assert.strictEqual(unraw(raw`\119`, true), "\u00099");
         });
         it("should parse with text after", function(): void {
-          assert.strictEqual(unraw(raw`\119test`, true), '\u00099test');
+          assert.strictEqual(unraw(raw`\119test`, true), "\u00099test");
         });
         it("should parse with text before", function(): void {
-          assert.strictEqual(unraw(raw`test\119`, true), 'test\u00099');
+          assert.strictEqual(unraw(raw`test\119`, true), "test\u00099");
         });
         it("should parse with text around", function(): void {
-          assert.strictEqual(unraw(raw`test\119test`, true), 'test\u00099test');
+          assert.strictEqual(unraw(raw`test\119test`, true), "test\u00099test");
         });
       });
     });
