@@ -192,21 +192,27 @@ export default function unraw(
     unicodeWithSurrogate?: string,
     surrogate?: string,
     unicode?: string,
-    octalCode?: string,
+    octal?: string,
     singleCharacter?: string
   ): string {
     // Compare groups to undefined because empty strings mean different errors
     // Otherwise, `\u` would fail the same as `\` which is wrong.
-    if (backslashOrZero !== undefined) 
+    if (backslashOrZero !== undefined) {
       return parseSingleCharacterCode(backslashOrZero);
-    if (singleCharacter !== undefined)
+    } else if (singleCharacter !== undefined) {
       return parseSingleCharacterCode(singleCharacter);
-    if (hex !== undefined) return parseHexadecimalCode(hex);
-    if (codePoint !== undefined) return parseUnicodeCodePointCode(codePoint);
-    if (unicodeWithSurrogate !== undefined)
+    } else if (hex !== undefined) {
+      return parseHexadecimalCode(hex);
+    } else if (codePoint !== undefined) {
+      return parseUnicodeCodePointCode(codePoint);
+    } else if (unicodeWithSurrogate !== undefined) {
       return parseUnicodeCode(unicodeWithSurrogate, surrogate);
-    if (unicode !== undefined) return parseUnicodeCode(unicode);
-    if (octalCode !== undefined) return parseOctalCode(octalCode, !allowOctals);
-    throw new SyntaxError("malformed escape sequence at end of string");
+    } else if (unicode !== undefined) {
+      return parseUnicodeCode(unicode);
+    } else if (octal !== undefined) {
+      return parseOctalCode(octal, !allowOctals);
+    } else {
+      throw new SyntaxError("malformed escape sequence at end of string");
+    }
   });
 }
