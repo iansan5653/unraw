@@ -14,6 +14,12 @@ import unraw from "./index";
 const raw = String.raw;
 
 context("unraw", function(): void {
+  it("should error on 0-length escape sequence", function(): void {
+    assert.throws(function(): void {
+      unraw("test\\");
+    }, new SyntaxError("malformed escape sequence at end of string"))
+  });
+
   describe("handles single character escape sequences", function(): void {
     context("\\b", function(): void {
       it("should parse alone", function(): void {

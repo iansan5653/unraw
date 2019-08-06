@@ -11,7 +11,7 @@ import {c} from "compress-tag";
 /**
  * Matches every escape sequence possible, including invalid ones.
  */
-const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[\s\S]{0,4}|[0-7]{1,3}|[\s\S])/g;
+const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[\s\S]{0,4}|[0-7]{1,3}|[\s\S]|$)/g;
 
 /**
  * Parse a hexadecimal escape code.
@@ -117,7 +117,12 @@ export default function unraw(
       const ch = sequence.charAt(0);
       // End at 5 to exclude surrogate if present
       const code = sequence.substring(1, 5);
-      if (ch === "0" && sequence.length === 1) {
+      if (ch.length === 0) {
+        // NOTE: This is a deviation from normal behavior because this is
+        // impossible in a normal string (String.raw`\` can never happen because
+        // \ escapes `).
+        throw new SyntaxError("malformed escape sequence at end of string");
+      } else if(ch === "0" && sequence.length === 1) {
         // When length > 1, handled as octal
         return "\0";
       } else if (ch === "b") {
