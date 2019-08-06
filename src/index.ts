@@ -84,8 +84,17 @@ function parseUnicodeCodePointCode(codePoint: string): string {
     // ie, "\u$$$$" or "\uF8"
     throw new SyntaxError("malformed Unicode character escape sequence");
   }
-
-  return String.fromCodePoint(parsedCode);
+  try {
+    return String.fromCodePoint(parsedCode);
+  } catch(err) {
+    if (err instanceof RangeError) {
+      throw new SyntaxError(c`
+        Unicode codepoint must not be greater than 0x10FFFF in escape sequence
+      `);
+    } else {
+      throw err;
+    }
+  }
 }
 
 /**
