@@ -408,6 +408,75 @@ context("unraw", function(): void {
         });
       });
 
+      context("\\x-A (negative, non-hex)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\x-A`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\x-Atest`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\x-A`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\x-Atest`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+      });
+
+      context("\\x+A (positive, non-hex)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\x+A`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\x+Atest`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\x+A`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\x+Atest`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+      });
+
+      context("\\xA. (decimal, non-hex)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\xA.`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\xA.test`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\xA.`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\xA.test`);
+          }, new SyntaxError("malformed hexadecimal character escape sequence"));
+        });
+      });
+
       it.skip("should have the right error", function(): void {
         // Throws a syntax error in the TS compiler so it can't be compiled
         /*
@@ -594,6 +663,75 @@ context("unraw", function(): void {
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u$$$$test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      context("\\u-5A5 (negative, non-hex)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u-5A5`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u-5A5test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u-5A5`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u-5A5test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      context("\\u+5A5 (positive, non-hex)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u+5A5`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u+5A5test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u+5A5`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u+5A5test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      context("\\u5A5. (decimal, non-hex)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u5A5.`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u5A5.test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u5A5.`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u5A5.test`);
           }, new SyntaxError("malformed Unicode character escape sequence"));
         });
       });
@@ -834,18 +972,18 @@ context("unraw", function(): void {
       });
     });
 
-    context("\\u{FFFF} (maximum possible value)", function(): void {
+    context("\\u{FFFFF} (maximum possible value)", function(): void {
       it("should parse alone", function(): void {
-        assert.strictEqual(unraw(raw`\u{FFFF}`), `\u{FFFF}`);
+        assert.strictEqual(unraw(raw`\u{FFFFF}`), `\u{FFFFF}`);
       });
       it("should parse with text after", function(): void {
-        assert.strictEqual(unraw(raw`\u{FFFF}test`), `\u{FFFF}test`);
+        assert.strictEqual(unraw(raw`\u{FFFFF}test`), `\u{FFFFF}test`);
       });
       it("should parse with text before", function(): void {
-        assert.strictEqual(unraw(raw`test\u{FFFF}`), `test\u{FFFF}`);
+        assert.strictEqual(unraw(raw`test\u{FFFFF}`), `test\u{FFFFF}`);
       });
       it("should parse with text around", function(): void {
-        assert.strictEqual(unraw(raw`test\u{FFFF}test`), `test\u{FFFF}test`);
+        assert.strictEqual(unraw(raw`test\u{FFFFF}test`), `test\u{FFFFF}test`);
       });
     });
 
@@ -935,25 +1073,25 @@ context("unraw", function(): void {
         });
       });
 
-      context("\\u{FFFFF} (too high)", function(): void {
+      context("\\u{FFFFFF} (too high)", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
-            unraw(`\\u{FFFFF}`);
+            unraw(`\\u{FFFFFF}`);
           }, new SyntaxError("Unicode codepoint must not be greater than 0x10FFFF in escape sequence"));
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
-            unraw(`\\u{FFFFF}test`);
+            unraw(`\\u{FFFFFF}test`);
           }, new SyntaxError("Unicode codepoint must not be greater than 0x10FFFF in escape sequence"));
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
-            unraw(`test\\u{FFFFF}`);
+            unraw(`test\\u{FFFFFF}`);
           }, new SyntaxError("Unicode codepoint must not be greater than 0x10FFFF in escape sequence"));
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
-            unraw(`test\\u{FFFFF}test`);
+            unraw(`test\\u{FFFFFF}test`);
           }, new SyntaxError("Unicode codepoint must not be greater than 0x10FFFF in escape sequence"));
         });
       });
@@ -977,6 +1115,75 @@ context("unraw", function(): void {
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{$$$$}test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      context("\\u{-1} (negative, non-hex)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u{-1}`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u{-1}test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u{-1}`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u{-1}test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      context("\\u{+1} (positive, non-hex)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u{+1}`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u{+1}test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u{+1}`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u{+1}test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+      });
+
+      context("\\u{1.} (decimal, non-hex)", function(): void {
+        it("should error alone", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u{1.}`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text after", function(): void {
+          assert.throws(function(): void {
+            unraw(`\\u{1.}test`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text before", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u{1.}`);
+          }, new SyntaxError("malformed Unicode character escape sequence"));
+        });
+        it("should error with text around", function(): void {
+          assert.throws(function(): void {
+            unraw(`test\\u{1.}test`);
           }, new SyntaxError("malformed Unicode character escape sequence"));
         });
       });
@@ -1047,6 +1254,21 @@ context("unraw", function(): void {
         });
         it("should parse with text around", function(): void {
           assert.strictEqual(unraw(raw`test\800test`, false), 'test\800test');
+        });
+      });
+
+      context("\\+1 (not an octal sequence)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\+1`, false), '\+1');
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\+1test`, false), '\+1test');
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\+1`, false), 'test\+1');
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\+1test`, false), 'test\+1test');
         });
       });
 
@@ -1138,6 +1360,21 @@ context("unraw", function(): void {
         });
         it("should parse with text around", function(): void {
           assert.strictEqual(unraw(raw`test\0test`, true), 'test\0test');
+        });
+      });
+
+      context("\\+1 (not an octal sequence)", function(): void {
+        it("should parse alone", function(): void {
+          assert.strictEqual(unraw(raw`\+1`, false), '\+1');
+        });
+        it("should parse with text after", function(): void {
+          assert.strictEqual(unraw(raw`\+1test`, false), '\+1test');
+        });
+        it("should parse with text before", function(): void {
+          assert.strictEqual(unraw(raw`test\+1`, false), 'test\+1');
+        });
+        it("should parse with text around", function(): void {
+          assert.strictEqual(unraw(raw`test\+1test`, false), 'test\+1test');
         });
       });
 

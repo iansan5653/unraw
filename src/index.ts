@@ -14,6 +14,21 @@ import {c} from "compress-tag";
 const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[\s\S]{0,4}|[0-7]{1,3}|[\s\S]|$)/g;
 
 /**
+ * Parse a string as a base-16 number. This is more strict than parseInt as it
+ * will not allow any other characters, including (for example) "+", "-", and
+ * ".".
+ * @param hex A string containing a hexadecimal number.
+ */
+function hexToInt(hex: string) {
+  if(hex.match(/[^a-f0-9]/i) !== null) {
+    // Matches the first non-hex symbol in the string
+    return NaN;
+  } else {
+    return parseInt(hex, 16);
+  }
+}
+
+/**
  * Parse a hexadecimal escape code.
  * @param code The two-character hex code that represents the character to
  * output.
@@ -21,7 +36,7 @@ const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[
  * length.
  */
 function parseHexadecimalCode(code: string): string {
-  const codeNumber = parseInt(code, 16);
+  const codeNumber = hexToInt(code);
   if (code.length !== 2 || Number.isNaN(codeNumber)) {
     // ie, "\xF" or "\x$$"
     throw new SyntaxError("malformed hexadecimal character escape sequence");
@@ -39,7 +54,7 @@ function parseHexadecimalCode(code: string): string {
  * length.
  */
 function parseUnicodeCode(code: string, surrogateCode?: string): string {
-  const parsedCode = parseInt(code, 16);
+  const parsedCode = hexToInt(code);
   if (code.length !== 4 || Number.isNaN(parsedCode)) {
     // ie, "\u$$$$" or "\uF8"
     throw new SyntaxError("malformed Unicode character escape sequence");
@@ -64,7 +79,7 @@ function parseUnicodeCode(code: string, surrogateCode?: string): string {
  * @throws {SyntaxError} If the code is not valid hex.
  */
 function parseUnicodeCodePointCode(codePoint: string): string {
-  const parsedCode = parseInt(codePoint, 16);
+  const parsedCode = hexToInt(codePoint);
   if (Number.isNaN(parsedCode)) {
     // ie, "\u$$$$" or "\uF8"
     throw new SyntaxError("malformed Unicode character escape sequence");
@@ -93,6 +108,8 @@ function parseOctalCode(code: string, error: boolean = false): string | never {
       for octal literals use the "0o" prefix instead
     `);
   } else {
+    // The original regex only allows digits so we don't need to have a strict
+    // octal parser like hexToInt
     const parsedCode = parseInt(code, 8);
     return String.fromCharCode(parsedCode);
   }
