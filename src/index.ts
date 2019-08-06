@@ -9,11 +9,6 @@
 import {c} from "compress-tag";
 
 /**
- * Matches every escape sequence possible, including invalid ones.
- */
-const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[\s\S]{0,4}|([0-3]?[0-7]{1,2})|[\s\S]|$)/g;
-
-/**
  * Parse a string as a base-16 number. This is more strict than parseInt as it
  * will not allow any other characters, including (for example) "+", "-", and
  * ".".
@@ -123,6 +118,11 @@ function parseOctalCode(code: string, error: boolean = false): string | never {
     return String.fromCharCode(parsedCode);
   }
 }
+
+/**
+ * Matches every escape sequence possible, including invalid ones.
+ */
+const escapeMatch = /\\(\\|x[\s\S]{0,2}|u\{[^}]*\}|u[\s\S]{4}\\u([\s\S]{0,4})|u[\s\S]{0,4}|([0-3]?[0-7]{1,2})|[\s\S]|$)/g;
 
 /**
  * Replace raw escape character strings with their escape characters.
