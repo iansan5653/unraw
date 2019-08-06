@@ -40,9 +40,12 @@ unraw("\\t\\tThis is indented.");
 The library attempts to mimic the behaviour of standard JavaScript strings as
 closely as possible. This means that invalid escape sequences will throw
 `SyntaxError`s and that every escape sequence that is valid in a normal string
-should be valid when passed to `unraw`. You can always expect the outcome of
-calling `unraw` on a raw string to be exactly the same as if that string were
-not raw in the first place:
+should be valid when passed to `unraw`.
+
+In some ways this is similar to the behavior of `JSON.parse`.
+
+You can always expect the outcome of calling `unraw` on a raw string to be
+exactly the same as if that string were not raw in the first place:
 
 ```js
 `Invalid: \u23`                   // Throws a SyntaxError
