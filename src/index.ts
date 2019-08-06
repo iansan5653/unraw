@@ -160,7 +160,7 @@ function parseSingleCharacterCode(code: string): string {
  * for 3 and 4 which always match together.
  *
  * **Capture Groups:**
- * 0. A single backslash or a single 0
+ * 0. A single backslash
  * 1. Hexadecimal code
  * 2. Unicode code point code with surrounding curly braces
  * 3. Unicode escape code with surrogate
@@ -169,7 +169,7 @@ function parseSingleCharacterCode(code: string): string {
  * 6. Octal code _NOTE: includes "0"._
  * 7. A single character (will never be \, x, u, or 0-3)
  */
-const escapeMatch = /\\(?:(\\|0)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([\s\S]{0,4})|u([\s\S]{0,4})|([0-3]?[0-7]{1,2})|([\s\S])|$)/g;
+const escapeMatch = /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([\s\S]{0,4})|u([\s\S]{0,4})|([0-3]?[0-7]{1,2})|([\s\S])|$)/g;
 
 /**
  * Replace raw escape character strings with their escape characters.
@@ -186,7 +186,7 @@ export default function unraw(
 ): string {
   return raw.replace(escapeMatch, function(
     _,
-    backslashOrZero?: string,
+    backslash?: string,
     hex?: string,
     codePoint?: string,
     unicodeWithSurrogate?: string,
@@ -197,8 +197,8 @@ export default function unraw(
   ): string {
     // Compare groups to undefined because empty strings mean different errors
     // Otherwise, `\u` would fail the same as `\` which is wrong.
-    if (backslashOrZero !== undefined) {
-      return parseSingleCharacterCode(backslashOrZero);
+    if (backslash !== undefined) {
+      return "\\";
     } else if (singleCharacter !== undefined) {
       return parseSingleCharacterCode(singleCharacter);
     } else if (hex !== undefined) {
@@ -209,6 +209,8 @@ export default function unraw(
       return parseUnicodeCode(unicodeWithSurrogate, surrogate);
     } else if (unicode !== undefined) {
       return parseUnicodeCode(unicode);
+    } else if (octal === "0") {
+      return "\0";
     } else if (octal !== undefined) {
       return parseOctalCode(octal, !allowOctals);
     } else {
