@@ -5,6 +5,9 @@
  * @license MIT
  */
 
+// NOTE: don't construct errors here or they'll have the wrong stack trace.
+// NOTE: don't make custom error class; the JS engines use `SyntaxError`
+
 /** The name of an error message. */
 export type ErrorMessageName =
   | "malformedUnicode"
