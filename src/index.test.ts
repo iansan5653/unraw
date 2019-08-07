@@ -300,7 +300,14 @@ context("unraw", function(): void {
     testParses("\\u{fafa}", "\u{fafa}", "lowercase");
     testParses("\\u{fAFa}", "\u{fAFa}", "mixed case");
     testParses("\\u{000000000005A5A}", "\u{000000000005A5A}", "leading zeros");
-    testParses("\\uDA99\\u{DD80}", "\uDA99\u{DD80}", "after unicode escape - should not be considered surrogate");
+    // OK, technically it is a surrogate because putting the two characters next
+    // to each other in a cooked string results in a single character. But it
+    // doesn't really matter as long as the result matched the JS parser result.
+    testParses(
+      "\\uDA99\\u{DD80}",
+      "\uDA99\u{DD80}",
+      "after unicode escape - should not be considered surrogate"
+    );
 
     describe("handles deeper escape levels", function(): void {
       testParses("\\\\u{5A5A}", "\\u{5A5A}", "even number of escapes");
@@ -310,7 +317,11 @@ context("unraw", function(): void {
     describe("errors on invalid sequences", function(): void {
       testErrors("\\u{}", "malformedUnicode", "zero digits");
       testErrors("\\u{FFFFFF}", "codePointLimit", "too high");
-      testErrors("\\uDA99\\u{FFFFFF}", "codePointLimit", "too high - should not be considered surrogate");
+      testErrors(
+        "\\uDA99\\u{FFFFFF}",
+        "codePointLimit",
+        "too high - should not be considered surrogate"
+      );
       testErrors("\\u{$$$$}", "malformedUnicode", "non-hex characters");
       testErrors("\\u{-1}", "malformedUnicode", "negative, non-hex");
       testErrors("\\u{+1}", "malformedUnicode", "positive, non-hex");

@@ -54,8 +54,7 @@ function parseUnicodeCode(code: string, surrogateCode?: string): string {
   }
 
   if (surrogateCode !== undefined) {
-    let parsedSurrogateCode: number | undefined = undefined;
-    parsedSurrogateCode = parseInt(surrogateCode, 16);
+    const parsedSurrogateCode = hexToInt(surrogateCode);
     if (surrogateCode.length !== 4 || Number.isNaN(parsedSurrogateCode)) {
       // ie, "\u00FF\uF" or "\u00FF\u$$$$"
       throw new SyntaxError("malformed Unicode character escape sequence");
@@ -167,7 +166,7 @@ function parseSingleCharacterCode(code: string): string {
  * 6. Octal code _NOTE: includes "0"._
  * 7. A single character (will never be \, x, u, or 0-3)
  */
-const escapeMatch = /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([\s\S]{0,4})|u([\s\S]{0,4})|([0-3]?[0-7]{1,2})|([\s\S])|$)/g;
+const escapeMatch = /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([^{][\s\S]{0,3})|u([\s\S]{0,4})|([0-3]?[0-7]{1,2})|([\s\S])|$)/g;
 
 /**
  * Replace raw escape character strings with their escape characters.
