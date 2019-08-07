@@ -205,9 +205,6 @@ export default function unraw(
     if (backslash !== undefined) {
       return "\\";
     }
-    if (singleCharacter !== undefined) {
-      return parseSingleCharacterCode(singleCharacter);
-    }
     if (hex !== undefined) {
       return parseHexadecimalCode(hex);
     }
@@ -226,6 +223,9 @@ export default function unraw(
     if (octal !== undefined) {
       return parseOctalCode(octal, !allowOctals);
     }
-    throw new SyntaxError("malformed escape sequence at end of string");
+    if (singleCharacter !== undefined) {
+      return parseSingleCharacterCode(singleCharacter);
+    }
+    throw new SyntaxError(errorMessages.get("endOfString"));
   });
 }
