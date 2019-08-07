@@ -13,12 +13,8 @@
  * @param hex A string containing a hexadecimal number.
  */
 function hexToInt(hex: string): number {
-  if (hex.match(/[^a-f0-9]/i) !== null) {
-    // Matches the first non-hex symbol in the string
-    return NaN;
-  } else {
-    return parseInt(hex, 16);
-  }
+  const isOnlyHexChars = !(hex.match(/[^a-f0-9]/i));
+  return isOnlyHexChars ? parseInt(hex, 16) : NaN;
 }
 
 /**
