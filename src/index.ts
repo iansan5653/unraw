@@ -6,8 +6,6 @@
  * @license MIT
  */
 
-import {c} from "compress-tag";
-
 /**
  * Parse a string as a base-16 number. This is more strict than parseInt as it
  * will not allow any other characters, including (for example) "+", "-", and
@@ -90,9 +88,9 @@ function parseUnicodeCodePointCode(codePoint: string): string {
     return String.fromCodePoint(parsedCode);
   } catch (err) {
     if (err instanceof RangeError) {
-      throw new SyntaxError(c`
-        Unicode codepoint must not be greater than 0x10FFFF in escape sequence
-      `);
+      throw new SyntaxError(
+        "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
+      );
     } else {
       throw err;
     }
@@ -114,10 +112,10 @@ function parseOctalCode(code: string, error: true): never;
 function parseOctalCode(code: string, error: boolean): string | never;
 function parseOctalCode(code: string, error: boolean = false): string | never {
   if (error) {
-    throw new SyntaxError(c`
-      "0"-prefixed octal literals and octal escape sequences are deprecated; 
-      for octal literals use the "0o" prefix instead
-    `);
+    throw new SyntaxError(
+      '"0"-prefixed octal literals and octal escape sequences are ' +
+      'deprecated; for octal literals use the "0o" prefix instead'
+    );
   } else {
     // The original regex only allows digits so we don't need to have a strict
     // octal parser like hexToInt

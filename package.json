@@ -46,9 +46,7 @@
     "ts-mocha": "^6.0.0",
     "typescript": "^3.5.3"
   },
-  "dependencies": {
-    "compress-tag": "^1.2.0"
-  },
+  "dependencies": {},
   "nyc": {
     "include": [
       "src/**/*.ts",
