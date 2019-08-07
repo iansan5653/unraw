@@ -8,7 +8,8 @@ opposite of
 ## Use Case
 Most of the time, you probably don't need this library unless you're working
 directly with raw strings and you need a way to get them back to normal strings.
-Maybe the most signicant use case is when building string template literal tags;
+Maybe the most signicant use case is when building
+[template literal tags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#Tagged_templates);
 you can use the `.raw` property of the passed string array to access the raw
 strings, but then you may want to still return normal strings after processing.
 
