@@ -19,7 +19,11 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["jsdoc", "mocha"],
   "rules": {
+    "mocha/no-skipped-tests": "off",
+    "mocha/no-setup-in-decribe": "off",
     //: Off because Prettier controls this
     "indent": "off",
     "@typescript-eslint/indent": "off",
@@ -64,9 +68,6 @@
         "ignoreTemplateLiterals": false,
         "ignoreRegExpLiterals": true
       }
-    ],
-    "mocha/no-skipped-tests": "off"
-  },
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["jsdoc", "mocha"]
+    ]
+  }
 }
