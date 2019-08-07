@@ -10,7 +10,30 @@
 import * as assert from "assert";
 import unraw from "./index";
 
-const raw = String.raw;
+type ErrorMessageName =
+  | "malformedUnicode"
+  | "malformedHexadecimal"
+  | "codePointLimit"
+  | "octalDeprecation"
+  | "endOfString";
+
+const errorMessages = new Map<ErrorMessageName, string>([
+  ["malformedUnicode", "malformed Unicode character escape sequence"],
+  ["malformedHexadecimal", "malformed hexadecimal character escape sequence"],
+  [
+    "codePointLimit",
+    "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
+  ],
+  [
+    "octalDeprecation",
+    '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+  ],
+  ["endOfString", "malformed escape sequence at end of string"]
+]);
+
+const formatTestTitle = function(ch: string, desc?: string): string {
+  return desc ? `${ch} (${desc})` : ch;
+};
 
 /**
  * Tests that the `unraw` output is exactly the same as the normal JavaScript
@@ -30,7 +53,7 @@ function testParses(
   allowOctals?: boolean,
   only: boolean = false
 ): void {
-  const title = description ? `${raw} (${description})` : raw;
+  const title = formatTestTitle(raw, description);
 
   function runTests(): void {
     it("should parse alone", function(): void {
@@ -59,33 +82,75 @@ function testParses(
   }
 }
 
-context("unraw", function(): void {
-  const errors = {
-    malformedUnicode: new SyntaxError(
-      "malformed Unicode character escape sequence"
-    ),
-    malformedHexadecimal: new SyntaxError(
-      "malformed hexadecimal character escape sequence"
-    ),
-    codePointLimit: new SyntaxError(
-      "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
-    ),
-    octalDeprecation: new SyntaxError(
-      '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-    ),
-    endOfStringError: new SyntaxError(
-      "malformed escape sequence at end of string"
-    )
-  };
+/**
+ * Tests that the given sequence throws a `SyntaxError` with the given message
+ * when passed through `unraw`.
+ * @param raw The raw string to pass to unraw (ie, `"\\n"`).
+ * @param errorName The name of the error message defined in `errorMessages` to
+ * test against.
+ * @param description A short description of what is being tested (ie,
+ * `"newline"`).
+ * @param isEndOfString If `true`, will not run the 'after' and 'around' tests.
+ * Used for testing sequences that are shorter than they should be.
+ * @param allowOctals Control whether octal sequences throw errors in `unraw`.
+ * @param only Run only this test set. Same effect as calling `context.only`
+ * instead of `context`.
+ */
+function testErrors(
+  raw: string,
+  errorName: ErrorMessageName,
+  description?: string,
+  isEndOfString: boolean = false,
+  allowOctals?: boolean,
+  only: boolean = false
+): void {
+  const title = formatTestTitle(raw, description);
+  const error = new SyntaxError(errorMessages.get(errorName));
 
-  it("should ignore strings with no escape sequences", function(): void {
+  function runTests(): void {
+    it("should error alone", function(): void {
+      assert.throws(function(): void {
+        unraw(`${raw}`, allowOctals);
+      }, error);
+    });
+    it("should error with text before", function(): void {
+      assert.throws(function(): void {
+        unraw(`test${raw}`, allowOctals);
+      }, error);
+    });
+
+    if (!isEndOfString) {
+      it("should error with text after", function(): void {
+        assert.throws(function(): void {
+          unraw(`${raw}test`, allowOctals);
+        }, error);
+      });
+      it("should error with text around", function(): void {
+        assert.throws(function(): void {
+          unraw(`test${raw}test`, allowOctals);
+        }, error);
+      });
+    }
+  }
+
+  if (only) {
+    // eslint-disable-next-line mocha/no-exclusive-tests
+    context.only(title, runTests);
+  } else {
+    // eslint-disable-next-line mocha/max-top-level-suites
+    context(title, runTests);
+  }
+}
+
+context("unraw", function(): void {
+  it("should not affect strings with no escape sequences", function(): void {
     assert.strictEqual(unraw("test"), "test");
   });
 
   it("should error on 0-length escape sequence", function(): void {
     assert.throws(function(): void {
       unraw("test\\");
-    }, errors.endOfStringError);
+    }, new SyntaxError(errorMessages.get("endOfString")));
   });
 
   describe("handles single character escape sequences", function(): void {
@@ -113,7 +178,11 @@ context("unraw", function(): void {
   });
 
   describe("handles hexadecimal escape sequences", function(): void {
-    testParses("\\X00", "\X00", "capital initializer - not a hexadecimal sequence");
+    testParses(
+      "\\X00",
+      "X00",
+      "capital initializer - not a hexadecimal sequence"
+    );
     testParses("\\x00", "\x00", "minimum possible value");
     testParses("\\x5A", "\x5A", "typical value");
     testParses("\\xFF", "\xFF", "maximum possible value");
@@ -126,147 +195,27 @@ context("unraw", function(): void {
     });
 
     describe("errors on invalid sequences", function(): void {
-      context("\\x (zero digits)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\x`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\x`);
-          }, errors.malformedHexadecimal);
-        });
-      });
-
-      context("\\x5 (one digit)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\x5`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\x5`);
-          }, errors.malformedHexadecimal);
-        });
-      });
-
-      context("\\x$$ (non-hex characters)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\x$$`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\x$$test`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\x$$`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\x$$test`);
-          }, errors.malformedHexadecimal);
-        });
-      });
-
-      context("\\x-A (negative, non-hex)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\x-A`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\x-Atest`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\x-A`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\x-Atest`);
-          }, errors.malformedHexadecimal);
-        });
-      });
-
-      context("\\x+A (positive, non-hex)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\x+A`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\x+Atest`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\x+A`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\x+Atest`);
-          }, errors.malformedHexadecimal);
-        });
-      });
-
-      context("\\xA. (decimal, non-hex)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\xA.`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\xA.test`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\xA.`);
-          }, errors.malformedHexadecimal);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\xA.test`);
-          }, errors.malformedHexadecimal);
-        });
-      });
+      testErrors("\\x", "malformedHexadecimal", "zero digits", true);
+      testErrors("\\x5", "malformedHexadecimal", "one digit", true);
+      testErrors("\\x$$", "malformedHexadecimal", "non-hex characters");
+      testErrors("\\x-A", "malformedHexadecimal", "negative, non-hex");
+      testErrors("\\x+A", "malformedHexadecimal", "positive, non-hex");
+      testErrors("\\xA.", "malformedHexadecimal", "decimal, non-hex");
 
       it.skip("should have the right error", function(): void {
-        // Throws a syntax error in the TS compiler so it can't be compiled
-        /*
-        let unrawErrorText = "";
-        let jsErrorText = "";
-        try {
-          unraw(`\\x$$`);
-        } catch (e) {
-          unrawErrorText = e.toString();
-        }
-        try {
-          "\x$$";
-        } catch (e) {
-          jsErrorText = e.toString();
-        }
-        assert.strictEqual(unrawErrorText, jsErrorText);
-        */
+        // Compare the thrown error to the actual syntax error
+        // Trying to find a way to do this without the TypeScript compiler
+        // failing on compile
       });
     });
   });
 
   describe("handles Unicode escape sequences", function(): void {
-    testParses("\\U0000", "\U0000", "capital initializer - not a Unicode escape sequence");
+    testParses(
+      "\\U0000",
+      "U0000",
+      "capital initializer - not a Unicode escape sequence"
+    );
     testParses("\\u0000", "\u0000", "minimum possible value");
     testParses("\\u5A5A", "\u5A5A", "typical value");
     testParses("\\uFFFF", "\uFFFF", "maximum possible value");
@@ -279,172 +228,28 @@ context("unraw", function(): void {
     });
 
     describe("errors on invalid sequences", function(): void {
-      context("\\u (zero digits)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u5 (one digit)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u5`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u5`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u5A (two digits)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u5A`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u5A`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u5A5 (three digits)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u5A5`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u5A5`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u$$$$ (non-hex characters)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u$$$$`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u$$$$test`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u$$$$`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u$$$$test`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u-5A5 (negative, non-hex)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u-5A5`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u-5A5test`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u-5A5`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u-5A5test`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u+5A5 (positive, non-hex)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u+5A5`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u+5A5test`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u+5A5`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u+5A5test`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u5A5. (decimal, non-hex)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u5A5.`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u5A5.test`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u5A5.`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u5A5.test`);
-          }, errors.malformedUnicode);
-        });
-      });
+      testErrors("\\u", "malformedUnicode", "zero digits", true);
+      testErrors("\\u5", "malformedUnicode", "one digit", true);
+      testErrors("\\u5A", "malformedUnicode", "two digits", true);
+      testErrors("\\u5A5", "malformedUnicode", "three digits", true);
+      testErrors("\\u$$$$", "malformedUnicode", "non-hex characters");
+      testErrors("\\u-5A5", "malformedUnicode", "negative, non-hex");
+      testErrors("\\u+5A5", "malformedUnicode", "positive, non-hex");
+      testErrors("\\u5A5.", "malformedUnicode", "decimal, non-hex");
 
       it.skip("should have the right error", function(): void {
-        // Throws a syntax error in the TS compiler so it can't be compiled
-        /*
-        let unrawErrorText = "";
-        let jsErrorText = "";
-        try {
-          unraw(raw`\u$$$$`);
-        } catch (e) {
-          unrawErrorText = e.toString();
-        }
-        try {
-          "\u$$$$";
-        } catch (e) {
-          jsErrorText = e.toString();
-        }
-        assert.strictEqual(unrawErrorText, jsErrorText);
-        */
+        // Compare the thrown error to the actual syntax error
+        // Trying to find a way to do this without the TypeScript compiler
+        // failing on compile
       });
     });
 
     context("with surrogates", function(): void {
-      testParses("\\uD800\\UDC00", "\uD800\UDC00", "capital initializer - not a Unicode surrogate escape sequence");
+      testParses(
+        "\\uD800\\UDC00",
+        "\uD800UDC00",
+        "capital initializer - not a Unicode surrogate escape sequence"
+      );
       testParses("\\uD800\\uDC00", "\uD800\uDC00", "minimum possible value");
       testParses("\\uDA99\\uDD80", "\uDA99\uDD80", "typical value");
       testParses("\\uDBFF\\uDFFF", "\uDBFF\uDFFF", "maximum possible value");
@@ -465,111 +270,37 @@ context("unraw", function(): void {
       });
 
       describe("errors on invalid sequences", function(): void {
-        context("\\uDA99\\u (zero digits)", function(): void {
-          it("should error alone", function(): void {
-            assert.throws(function(): void {
-              unraw(`\\uDA99\\u`);
-            }, errors.malformedUnicode);
-          });
-          it("should error with text before", function(): void {
-            assert.throws(function(): void {
-              unraw(`test\\uDA99\\u`);
-            }, errors.malformedUnicode);
-          });
-        });
-
-        context("\\uDA99\\uD (one digit)", function(): void {
-          it("should error alone", function(): void {
-            assert.throws(function(): void {
-              unraw(`\\uDA99\\uD`);
-            }, errors.malformedUnicode);
-          });
-          it("should error with text before", function(): void {
-            assert.throws(function(): void {
-              unraw(`test\\uDA99\\uD`);
-            }, errors.malformedUnicode);
-          });
-        });
-
-        context("\\uDA99\\uDD (two digits)", function(): void {
-          it("should error alone", function(): void {
-            assert.throws(function(): void {
-              unraw(`\\uDA99\\uDD`);
-            }, errors.malformedUnicode);
-          });
-          it("should error with text before", function(): void {
-            assert.throws(function(): void {
-              unraw(`test\\uDA99\\uDD`);
-            }, errors.malformedUnicode);
-          });
-        });
-
-        context("\\uDA99\\uDD8 (three digits)", function(): void {
-          it("should error alone", function(): void {
-            assert.throws(function(): void {
-              unraw(`\\uDA99\\uDD8`);
-            }, errors.malformedUnicode);
-          });
-          it("should error with text before", function(): void {
-            assert.throws(function(): void {
-              unraw(`test\\uDA99\\uDD8`);
-            }, errors.malformedUnicode);
-          });
-        });
-
-        context("\\uDA99\\u$$$$ (non-hex characters)", function(): void {
-          it("should error alone", function(): void {
-            assert.throws(function(): void {
-              unraw(`\\uDA99\\u$$$$`);
-            }, errors.malformedUnicode);
-          });
-          it("should error with text after", function(): void {
-            assert.throws(function(): void {
-              unraw(`\\uDA99\\u$$$$test`);
-            }, errors.malformedUnicode);
-          });
-          it("should error with text before", function(): void {
-            assert.throws(function(): void {
-              unraw(`test\\uDA99\\u$$$$`);
-            }, errors.malformedUnicode);
-          });
-          it("should error with text around", function(): void {
-            assert.throws(function(): void {
-              unraw(`test\\uDA99\\u$$$$test`);
-            }, errors.malformedUnicode);
-          });
-        });
+        testErrors("\\uDA99\\u", "malformedUnicode", "zero digits", true);
+        testErrors("\\uDA99\\uD", "malformedUnicode", "one digit", true);
+        testErrors("\\uDA99\\uDD", "malformedUnicode", "two digits", true);
+        testErrors("\\uDA99\\uDD8", "malformedUnicode", "three digits", true);
+        testErrors("\\uDA99\\u$$$$", "malformedUnicode", "non-hex characters");
+        testErrors("\\uDA99\\u-5A5", "malformedUnicode", "negative, non-hex");
+        testErrors("\\uDA99\\u+5A5", "malformedUnicode", "positive, non-hex");
+        testErrors("\\uDA99\\u5A5.", "malformedUnicode", "decimal, non-hex");
 
         it.skip("should have the right error", function(): void {
-          // Throws a syntax error in the TS compiler so it can't be compiled
-          /*
-          let unrawErrorText = "";
-          let jsErrorText = "";
-          try {
-            unraw(raw`\uDA99\u$$$$`);
-          } catch (e) {
-            unrawErrorText = e.toString();
-          }
-          try {
-            "\uDA99\u$$$$";
-          } catch (e) {
-            jsErrorText = e.toString();
-          }
-          assert.strictEqual(unrawErrorText, jsErrorText);
-          */
+          // Compare the thrown error to the actual syntax error
+          // Trying to find a way to do this without the TypeScript compiler
+          // failing on compile
         });
       });
     });
   });
 
   describe("handles Unicode code point escape sequences", function(): void {
-    testParses("\\U{0}", "\U{0}", "capital initializer - not a code point sequence");
+    testParses(
+      "\\U{0}",
+      "U{0}",
+      "capital initializer - not a code point sequence"
+    );
     testParses("\\u{0}", "\u{0}", "minimum possible value");
     testParses("\\u{5A5A}", "\u{5A5A}", "typical value");
     testParses("\\u{FFFFF}", "\u{FFFFF}", "maximum possible value");
     testParses("\\u{fafa}", "\u{fafa}", "lowercase");
     testParses("\\u{fAFa}", "\u{fAFa}", "mixed case");
     testParses("\\u{000000000005A5A}", "\u{000000000005A5A}", "leading zeros");
+    testParses("\\uDA99\\u{DD80}", "\uDA99\u{DD80}", "after unicode escape - should not be considered surrogate");
 
     describe("handles deeper escape levels", function(): void {
       testParses("\\\\u{5A5A}", "\\u{5A5A}", "even number of escapes");
@@ -577,174 +308,19 @@ context("unraw", function(): void {
     });
 
     describe("errors on invalid sequences", function(): void {
-      context("\\u{} (zero digits)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{}test`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{}test`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u{FFFFFF} (too high)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{FFFFFF}`);
-          }, errors.codePointLimit);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{FFFFFF}test`);
-          }, errors.codePointLimit);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{FFFFFF}`);
-          }, errors.codePointLimit);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{FFFFFF}test`);
-          }, errors.codePointLimit);
-        });
-      });
-
-      context("\\u{$$$$} (non-hex characters)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{$$$$}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{$$$$}test`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{$$$$}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{$$$$}test`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u{-1} (negative, non-hex)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{-1}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{-1}test`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{-1}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{-1}test`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u{+1} (positive, non-hex)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{+1}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{+1}test`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{+1}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{+1}test`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u{1.} (decimal, non-hex)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{1.}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text after", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{1.}test`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{1.}`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text around", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{1.}test`);
-          }, errors.malformedUnicode);
-        });
-      });
-
-      context("\\u{A (unclosed sequence)", function(): void {
-        it("should error alone", function(): void {
-          assert.throws(function(): void {
-            unraw(`\\u{A`);
-          }, errors.malformedUnicode);
-        });
-        it("should error with text before", function(): void {
-          assert.throws(function(): void {
-            unraw(`test\\u{A`);
-          }, errors.malformedUnicode);
-        });
-      });
+      testErrors("\\u{}", "malformedUnicode", "zero digits");
+      testErrors("\\u{FFFFFF}", "codePointLimit", "too high");
+      testErrors("\\uDA99\\u{FFFFFF}", "codePointLimit", "too high - should not be considered surrogate");
+      testErrors("\\u{$$$$}", "malformedUnicode", "non-hex characters");
+      testErrors("\\u{-1}", "malformedUnicode", "negative, non-hex");
+      testErrors("\\u{+1}", "malformedUnicode", "positive, non-hex");
+      testErrors("\\u{1.}", "malformedUnicode", "decimal, non-hex");
+      testErrors("\\u{1", "malformedUnicode", "unclosed sequence", true);
 
       it.skip("should have the right error", function(): void {
-        // Throws a syntax error in the TS compiler so it can't be compiled
-        /*
-        let unrawErrorText = "";
-        let jsErrorText = "";
-        try {
-          unraw(raw`\u{A`);
-        } catch (e) {
-          unrawErrorText = e.toString();
-        }
-        try {
-          "\u{A";
-        } catch (e) {
-          jsErrorText = e.toString();
-        }
-        assert.strictEqual(unrawErrorText, jsErrorText);
-        */
+        // Compare the thrown error to the actual syntax error
+        // Trying to find a way to do this without the TypeScript compiler
+        // failing on compile
       });
     });
   });
@@ -757,74 +333,9 @@ context("unraw", function(): void {
       testParses("\\-1", "-1", "not an octal sequence");
 
       describe("errors on octal sequences", function(): void {
-        context("\\1 (single digit)", function(): void {
-          it("should error alone", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`\1`, false);
-            }, errors.octalDeprecation);
-          });
-          it("should error with text after", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`\1test`, false);
-            }, errors.octalDeprecation);
-          });
-          it("should error with text before", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`test\1`, false);
-            }, errors.octalDeprecation);
-          });
-          it("should error with text around", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`test\1test`, false);
-            }, errors.octalDeprecation);
-          });
-        });
-
-        context("\\00 (double digit)", function(): void {
-          it("should error alone", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`\00`, false);
-            }, errors.octalDeprecation);
-          });
-          it("should error with text after", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`\00test`, false);
-            }, errors.octalDeprecation);
-          });
-          it("should error with text before", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`test\00`, false);
-            }, errors.octalDeprecation);
-          });
-          it("should error with text around", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`test\00test`, false);
-            }, errors.octalDeprecation);
-          });
-        });
-
-        context("\\101 (triple digit)", function(): void {
-          it("should error alone", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`\101`, false);
-            }, errors.octalDeprecation);
-          });
-          it("should error with text after", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`\101test`, false);
-            }, errors.octalDeprecation);
-          });
-          it("should error with text before", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`test\101`, false);
-            }, errors.octalDeprecation);
-          });
-          it("should error with text around", function(): void {
-            assert.throws(function(): void {
-              unraw(raw`test\101test`, false);
-            }, errors.octalDeprecation);
-          });
-        });
+        testErrors("\\1", "octalDeprecation", "one digit", true);
+        testErrors("\\00", "octalDeprecation", "two digits", true);
+        testErrors("\\101", "octalDeprecation", "three digits", true);
       });
     });
 
