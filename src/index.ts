@@ -124,30 +124,26 @@ function parseOctalCode(code: string, error: boolean = false): string | never {
 }
 
 /**
+ * Map of unescaped letters to their corresponding special JS escape characters.
+ * Intentionally does not include characters that map to themselves like "\'".
+ */
+const singleCharacterEscapes = new Map<string, string>([
+  ["b", "\b"],
+  ["f", "\f"],
+  ["n", "\n"],
+  ["r", "\r"],
+  ["t", "\t"],
+  ["v", "\v"],
+  ["0", "\0"]
+]);
+
+/**
  * Parse a single character escape sequence and return the matching character.
- * If none is matched, returns `code`. Naively assumes `code.length == 1`.
+ * If none is matched, defaults to `code`.
  * @param code A single character code.
  */
 function parseSingleCharacterCode(code: string): string {
-  switch (code) {
-    case "b":
-      return "\b";
-    case "f":
-      return "\f";
-    case "n":
-      return "\n";
-    case "r":
-      return "\r";
-    case "t":
-      return "\t";
-    case "v":
-      return "\v";
-    case "0":
-      return "\0";
-    default:
-      // Handles quotes and backslashes as well as anything else
-      return code;
-  }
+  return singleCharacterEscapes.get(code) || code;
 }
 
 /**
