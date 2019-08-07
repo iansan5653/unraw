@@ -5,7 +5,12 @@
  * @license MIT
  */
 
-/* eslint-disable max-len, no-useless-escape, mocha/no-setup-in-describe */
+/*
+  eslint-disable max-len,
+  no-useless-escape,
+  mocha/no-setup-in-describe,
+  mocha/max-top-level-suites
+*/
 
 import * as assert from "assert";
 import unraw from "./index";
@@ -31,9 +36,9 @@ const errorMessages = new Map<ErrorMessageName, string>([
   ["endOfString", "malformed escape sequence at end of string"]
 ]);
 
-const formatTestTitle = function(ch: string, desc?: string): string {
+function formatTestTitle(ch: string, desc?: string): string {
   return desc ? `${ch} (${desc})` : ch;
-};
+}
 
 /**
  * Tests that the `unraw` output is exactly the same as the normal JavaScript
@@ -43,43 +48,32 @@ const formatTestTitle = function(ch: string, desc?: string): string {
  * @param description A short description of what is being tested (ie,
  * `"newline"`).
  * @param allowOctals Control whether octal sequences throw errors in `unraw`.
- * @param only Run only this test set. Same effect as calling `context.only`
- * instead of `context`.
  */
 function testParses(
   raw: string,
   cooked: string,
   description?: string,
-  allowOctals?: boolean,
-  only: boolean = false
+  allowOctals?: boolean
 ): void {
-  const title = formatTestTitle(raw, description);
+  const suiteTitle = formatTestTitle(raw, description);
 
   function runTests(): void {
-    it("should parse alone", function(): void {
-      assert.strictEqual(unraw(`${raw}`, allowOctals), `${cooked}`);
-    });
-    it("should parse with text before", function(): void {
-      assert.strictEqual(unraw(`test${raw}`, allowOctals), `test${cooked}`);
-    });
-    it("should parse with text after", function(): void {
-      assert.strictEqual(unraw(`${raw}test`, allowOctals), `${cooked}test`);
-    });
-    it("should parse with text around", function(): void {
-      assert.strictEqual(
-        unraw(`test${raw}test`, allowOctals),
-        `test${cooked}test`
-      );
+    /** List of tests to run in `[title, stringToUnraw, cookedString]` form. */
+    const tests: Array<[string, string, string]> = [
+      ["should parse alone", `${raw}`, `${cooked}`],
+      ["should parse with text before", `test${raw}`, `test${cooked}`],
+      ["should parse with text after", `${raw}test`, `${cooked}test`],
+      ["should parse with text around", `test${raw}test`, `test${cooked}test`]
+    ];
+
+    tests.forEach(([testTitle, raw, cooked]): void => {
+      it(testTitle, function(): void {
+        assert.strictEqual(unraw(raw, allowOctals), cooked);
+      });
     });
   }
 
-  if (only) {
-    // eslint-disable-next-line mocha/no-exclusive-tests
-    context.only(title, runTests);
-  } else {
-    // eslint-disable-next-line mocha/max-top-level-suites
-    context(title, runTests);
-  }
+  context(suiteTitle, runTests);
 }
 
 /**
@@ -93,53 +87,39 @@ function testParses(
  * @param isEndOfString If `true`, will not run the 'after' and 'around' tests.
  * Used for testing sequences that are shorter than they should be.
  * @param allowOctals Control whether octal sequences throw errors in `unraw`.
- * @param only Run only this test set. Same effect as calling `context.only`
- * instead of `context`.
  */
 function testErrors(
   raw: string,
   errorName: ErrorMessageName,
   description?: string,
   isEndOfString: boolean = false,
-  allowOctals?: boolean,
-  only: boolean = false
+  allowOctals?: boolean
 ): void {
   const title = formatTestTitle(raw, description);
   const error = new SyntaxError(errorMessages.get(errorName));
 
   function runTests(): void {
-    it("should error alone", function(): void {
-      assert.throws(function(): void {
-        unraw(`${raw}`, allowOctals);
-      }, error);
-    });
-    it("should error with text before", function(): void {
-      assert.throws(function(): void {
-        unraw(`test${raw}`, allowOctals);
-      }, error);
-    });
+    /** List of tests to run in `[title, stringToAttemptUnraw]` form. */
+    const tests: Array<[string, string]> = [
+      ["should error alone", `${raw}`],
+      ["should error with text before", `test${raw}`]
+    ];
 
     if (!isEndOfString) {
-      it("should error with text after", function(): void {
-        assert.throws(function(): void {
-          unraw(`${raw}test`, allowOctals);
-        }, error);
-      });
-      it("should error with text around", function(): void {
-        assert.throws(function(): void {
-          unraw(`test${raw}test`, allowOctals);
-        }, error);
-      });
+      tests.push(
+        ["should error with text after", `${raw}test`],
+        ["should error with text around", `test${raw}test`]
+      );
     }
+
+    tests.forEach(([testTitle, raw]): void => {
+      it(testTitle, function(): void {
+        assert.throws((): string => unraw(raw, allowOctals), error);
+      });
+    });
   }
 
-  if (only) {
-    // eslint-disable-next-line mocha/no-exclusive-tests
-    context.only(title, runTests);
-  } else {
-    // eslint-disable-next-line mocha/max-top-level-suites
-    context(title, runTests);
-  }
+  context(title, runTests);
 }
 
 context("unraw", function(): void {
