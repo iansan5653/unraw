@@ -14,6 +14,24 @@ import unraw from "./index";
 const raw = String.raw;
 
 context("unraw", function(): void {
+  const errors = {
+    malformedUnicode: new SyntaxError(
+      "malformed Unicode character escape sequence"
+    ),
+    malformedHexadecimal: new SyntaxError(
+      "malformed hexadecimal character escape sequence"
+    ),
+    codePointLimit: new SyntaxError(
+      "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
+    ),
+    octalDeprecation: new SyntaxError(
+      '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
+    ),
+    endOfStringError: new SyntaxError(
+      "malformed escape sequence at end of string"
+    )
+  };
+
   it("should ignore strings with no escape sequences", function(): void {
     assert.strictEqual(unraw("test"), "test");
   });
@@ -21,7 +39,7 @@ context("unraw", function(): void {
   it("should error on 0-length escape sequence", function(): void {
     assert.throws(function(): void {
       unraw("test\\");
-    }, new SyntaxError("malformed escape sequence at end of string"));
+    }, errors.endOfStringError);
   });
 
   describe("handles single character escape sequences", function(): void {
@@ -351,16 +369,12 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\x`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
       });
 
@@ -368,16 +382,12 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\x5`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x5`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
       });
 
@@ -385,30 +395,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\x$$`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\x$$test`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x$$`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x$$test`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
       });
 
@@ -416,30 +418,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\x-A`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\x-Atest`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x-A`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x-Atest`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
       });
 
@@ -447,30 +441,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\x+A`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\x+Atest`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x+A`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\x+Atest`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
       });
 
@@ -478,30 +464,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\xA.`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\xA.test`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\xA.`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\xA.test`);
-          }, new SyntaxError(
-            "malformed hexadecimal character escape sequence"
-          ));
+          }, errors.malformedHexadecimal);
         });
       });
 
@@ -624,12 +602,12 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -637,12 +615,12 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u5`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u5`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -650,12 +628,12 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u5A`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u5A`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -663,12 +641,12 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u5A5`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u5A5`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -676,22 +654,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u$$$$`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u$$$$test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u$$$$`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u$$$$test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -699,22 +677,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u-5A5`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u-5A5test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u-5A5`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u-5A5test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -722,22 +700,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u+5A5`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u+5A5test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u+5A5`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u+5A5test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -745,22 +723,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u5A5.`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u5A5.test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u5A5.`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u5A5.test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -894,12 +872,12 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(`\\uDA99\\u`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(`test\\uDA99\\u`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
         });
 
@@ -907,12 +885,12 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(`\\uDA99\\uD`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(`test\\uDA99\\uD`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
         });
 
@@ -920,12 +898,12 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(`\\uDA99\\uDD`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(`test\\uDA99\\uDD`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
         });
 
@@ -933,12 +911,12 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(`\\uDA99\\uDD8`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(`test\\uDA99\\uDD8`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
         });
 
@@ -946,22 +924,22 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(`\\uDA99\\u$$$$`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
           it("should error with text after", function(): void {
             assert.throws(function(): void {
               unraw(`\\uDA99\\u$$$$test`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(`test\\uDA99\\u$$$$`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
           it("should error with text around", function(): void {
             assert.throws(function(): void {
               unraw(`test\\uDA99\\u$$$$test`);
-            }, new SyntaxError("malformed Unicode character escape sequence"));
+            }, errors.malformedUnicode);
           });
         });
 
@@ -1118,22 +1096,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -1141,30 +1119,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{FFFFFF}`);
-          }, new SyntaxError(
-            "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
-          ));
+          }, errors.codePointLimit);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{FFFFFF}test`);
-          }, new SyntaxError(
-            "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
-          ));
+          }, errors.codePointLimit);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{FFFFFF}`);
-          }, new SyntaxError(
-            "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
-          ));
+          }, errors.codePointLimit);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{FFFFFF}test`);
-          }, new SyntaxError(
-            "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
-          ));
+          }, errors.codePointLimit);
         });
       });
 
@@ -1172,22 +1142,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{$$$$}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{$$$$}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{$$$$}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{$$$$}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -1195,22 +1165,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{-1}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{-1}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{-1}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{-1}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -1218,22 +1188,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{+1}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{+1}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{+1}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{+1}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -1241,22 +1211,22 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{1.}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text after", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{1.}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{1.}`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text around", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{1.}test`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -1264,12 +1234,12 @@ context("unraw", function(): void {
         it("should error alone", function(): void {
           assert.throws(function(): void {
             unraw(`\\u{A`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
         it("should error with text before", function(): void {
           assert.throws(function(): void {
             unraw(`test\\u{A`);
-          }, new SyntaxError("malformed Unicode character escape sequence"));
+          }, errors.malformedUnicode);
         });
       });
 
@@ -1349,30 +1319,22 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(raw`\1`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
           it("should error with text after", function(): void {
             assert.throws(function(): void {
               unraw(raw`\1test`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\1`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
           it("should error with text around", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\1test`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
         });
 
@@ -1380,30 +1342,22 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(raw`\00`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
           it("should error with text after", function(): void {
             assert.throws(function(): void {
               unraw(raw`\00test`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\00`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
           it("should error with text around", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\00test`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
         });
 
@@ -1411,30 +1365,22 @@ context("unraw", function(): void {
           it("should error alone", function(): void {
             assert.throws(function(): void {
               unraw(raw`\101`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
           it("should error with text after", function(): void {
             assert.throws(function(): void {
               unraw(raw`\101test`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
           it("should error with text before", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\101`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
           it("should error with text around", function(): void {
             assert.throws(function(): void {
               unraw(raw`test\101test`, false);
-            }, new SyntaxError(
-              '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-            ));
+            }, errors.octalDeprecation);
           });
         });
       });
