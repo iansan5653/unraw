@@ -2,7 +2,7 @@
 
 All notable outward-facing changes will be documented in this file.
 
-## 1.1.2
+## 1.2.2
 - Update readme
 - Publish types for `errors.ts`
 
