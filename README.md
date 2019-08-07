@@ -13,15 +13,15 @@ you can use the `.raw` property of the passed string array to access the raw
 strings, but then you may want to still return normal strings after processing.
 
 ## Installation
+This is a UMD module.
+
 `unraw` is hosted on [NPM](https://www.npmjs.com/unraw):
 ```bash
 npm i unraw
 ```
 
-You can embed it (minified) on a webpage with [UNPKG](https://unpkg.com):
-```html
-<script src="https://unpkg.com/unraw"></script>
-```
+You can embed it (minified) on a webpage with [UNPKG](https://unpkg.com): 
+https://unpkg.com/unraw
 
 ## Usage
 Usage is simple - the library exports just one function, `unraw`. The first
