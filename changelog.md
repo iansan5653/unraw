@@ -2,6 +2,10 @@
 
 All notable outward-facing changes will be documented in this file.
 
+## 1.2.1
+- Publish error messages in `error.ts`
+- Refactor `index.ts` methods
+
 ## 1.1.1
 - Refactor tests and add more tests
 - Fix: properly handle code point escapes that directly follow unicode escapes
