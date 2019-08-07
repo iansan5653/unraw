@@ -69,6 +69,17 @@ unraw(String.raw`Octal: \102`)     // => Throws a SyntaxError
 unraw(String.raw`Octal: \102`, true) // => Octal: B
 ```
 
+### Errors
+If desired, you can access the error messages for comparison from the `errors`
+submodule:
+```ts
+import {errorMessages} from "unraw/dist/errors";
+
+const hexErrorMessage = errorMessages.get("malformedHexadecimal");
+```
+The full list of error message names available as `errorMessages.keys()` or as
+the `ErrorMessageName` type in TypeScript. All errors thrown are `SyntaxError`s.
+
 ## Contributing
 
 Found a bug? Please, 
