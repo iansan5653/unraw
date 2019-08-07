@@ -6,15 +6,42 @@
  * @license MIT
  */
 
+import {ErrorMessageName, errorMessages} from "./errors";
+
 /**
  * Parse a string as a base-16 number. This is more strict than parseInt as it
  * will not allow any other characters, including (for example) "+", "-", and
  * ".".
  * @param hex A string containing a hexadecimal number.
  */
-function hexToInt(hex: string): number {
-  const isOnlyHexChars = !(hex.match(/[^a-f0-9]/i));
+function parseHexToInt(hex: string): number {
+  const isOnlyHexChars = !hex.match(/[^a-f0-9]/i);
   return isOnlyHexChars ? parseInt(hex, 16) : NaN;
+}
+
+/**
+ * Check the validity and length of a four-digit hexadecimal code.
+ * @param hex The string to validate and parse.
+ * @param errorName The name of the error message to throw a `SyntaxError` with
+ * if `hex` is invalid.
+ * @param enforcedLength If provided, will throw an error if `hex` is not this
+ * long exactly.
+ * @returns The parsed code.
+ * @throws {SyntaxError} If the code is not valid.
+ */
+function validateAndParseHex(
+  hex: string,
+  errorName: ErrorMessageName,
+  enforcedLength?: number
+): number {
+  const parsedHex = parseHexToInt(hex);
+  if (
+    Number.isNaN(parsedHex) ||
+    (enforcedLength && hex.length !== enforcedLength)
+  ) {
+    throw new SyntaxError(errorMessages.get(errorName));
+  }
+  return parsedHex;
 }
 
 /**
@@ -25,12 +52,8 @@ function hexToInt(hex: string): number {
  * length.
  */
 function parseHexadecimalCode(code: string): string {
-  const codeNumber = hexToInt(code);
-  if (code.length !== 2 || Number.isNaN(codeNumber)) {
-    // ie, "\xF" or "\x$$"
-    throw new SyntaxError("malformed hexadecimal character escape sequence");
-  }
-  return String.fromCharCode(codeNumber);
+  const parsedCode = validateAndParseHex(code, "malformedHexadecimal", 2);
+  return String.fromCharCode(parsedCode);
 }
 
 /**
@@ -43,22 +66,27 @@ function parseHexadecimalCode(code: string): string {
  * length.
  */
 function parseUnicodeCode(code: string, surrogateCode?: string): string {
-  const parsedCode = hexToInt(code);
-  if (code.length !== 4 || Number.isNaN(parsedCode)) {
-    // ie, "\u$$$$" or "\uF8"
-    throw new SyntaxError("malformed Unicode character escape sequence");
-  }
+  const parsedCode = validateAndParseHex(code, "malformedUnicode", 4);
 
   if (surrogateCode !== undefined) {
-    const parsedSurrogateCode = hexToInt(surrogateCode);
-    if (surrogateCode.length !== 4 || Number.isNaN(parsedSurrogateCode)) {
-      // ie, "\u00FF\uF" or "\u00FF\u$$$$"
-      throw new SyntaxError("malformed Unicode character escape sequence");
-    }
+    const parsedSurrogateCode = validateAndParseHex(
+      surrogateCode,
+      "malformedUnicode",
+      4
+    );
     return String.fromCharCode(parsedCode, parsedSurrogateCode);
   }
 
   return String.fromCharCode(parsedCode);
+}
+
+/**
+ * Test if the text is surrounded by curly braces (`{}`).
+ * @param text Text to check.
+ * @returns `true` if the text is in the form `{*}`.
+ */
+function isCurlyBraced(text: string): boolean {
+  return text.charAt(0) === "{" && text.charAt(text.length - 1) === "}";
 }
 
 /**
@@ -69,26 +97,18 @@ function parseUnicodeCode(code: string, surrogateCode?: string): string {
  * surrounding curly braces.
  */
 function parseUnicodeCodePointCode(codePoint: string): string {
-  const lastIndex = codePoint.length - 1;
-  const parsedCode = hexToInt(codePoint.substring(1, lastIndex));
-  if (
-    codePoint.charAt(0) !== "{" ||
-    codePoint.charAt(lastIndex) !== "}" ||
-    Number.isNaN(parsedCode)
-  ) {
-    // ie, "\u$$$$" or "\uF8"
-    throw new SyntaxError("malformed Unicode character escape sequence");
+  if (!isCurlyBraced(codePoint)) {
+    throw new SyntaxError(errorMessages.get("malformedUnicode"));
   }
+  const withoutBraces = codePoint.slice(1, -1);
+  const parsedCode = validateAndParseHex(withoutBraces, "malformedUnicode");
+
   try {
     return String.fromCodePoint(parsedCode);
   } catch (err) {
-    if (err instanceof RangeError) {
-      throw new SyntaxError(
-        "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
-      );
-    } else {
-      throw err;
-    }
+    throw err instanceof RangeError
+      ? new SyntaxError(errorMessages.get("codePointLimit"))
+      : err;
   }
 }
 
@@ -109,7 +129,7 @@ function parseOctalCode(code: string, error: boolean = false): string | never {
   if (error) {
     throw new SyntaxError(
       '"0"-prefixed octal literals and octal escape sequences are ' +
-      'deprecated; for octal literals use the "0o" prefix instead'
+        'deprecated; for octal literals use the "0o" prefix instead'
     );
   } else {
     // The original regex only allows digits so we don't need to have a strict
@@ -188,22 +208,28 @@ export default function unraw(
     // Otherwise, `\u` would fail the same as `\` which is wrong.
     if (backslash !== undefined) {
       return "\\";
-    } else if (singleCharacter !== undefined) {
-      return parseSingleCharacterCode(singleCharacter);
-    } else if (hex !== undefined) {
-      return parseHexadecimalCode(hex);
-    } else if (codePoint !== undefined) {
-      return parseUnicodeCodePointCode(codePoint);
-    } else if (unicodeWithSurrogate !== undefined) {
-      return parseUnicodeCode(unicodeWithSurrogate, surrogate);
-    } else if (unicode !== undefined) {
-      return parseUnicodeCode(unicode);
-    } else if (octal === "0") {
-      return "\0";
-    } else if (octal !== undefined) {
-      return parseOctalCode(octal, !allowOctals);
-    } else {
-      throw new SyntaxError("malformed escape sequence at end of string");
     }
+    if (singleCharacter !== undefined) {
+      return parseSingleCharacterCode(singleCharacter);
+    }
+    if (hex !== undefined) {
+      return parseHexadecimalCode(hex);
+    }
+    if (codePoint !== undefined) {
+      return parseUnicodeCodePointCode(codePoint);
+    }
+    if (unicodeWithSurrogate !== undefined) {
+      return parseUnicodeCode(unicodeWithSurrogate, surrogate);
+    }
+    if (unicode !== undefined) {
+      return parseUnicodeCode(unicode);
+    }
+    if (octal === "0") {
+      return "\0";
+    }
+    if (octal !== undefined) {
+      return parseOctalCode(octal, !allowOctals);
+    }
+    throw new SyntaxError("malformed escape sequence at end of string");
   });
 }

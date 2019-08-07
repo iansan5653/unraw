@@ -14,27 +14,7 @@
 
 import * as assert from "assert";
 import unraw from "./index";
-
-type ErrorMessageName =
-  | "malformedUnicode"
-  | "malformedHexadecimal"
-  | "codePointLimit"
-  | "octalDeprecation"
-  | "endOfString";
-
-const errorMessages = new Map<ErrorMessageName, string>([
-  ["malformedUnicode", "malformed Unicode character escape sequence"],
-  ["malformedHexadecimal", "malformed hexadecimal character escape sequence"],
-  [
-    "codePointLimit",
-    "Unicode codepoint must not be greater than 0x10FFFF in escape sequence"
-  ],
-  [
-    "octalDeprecation",
-    '"0"-prefixed octal literals and octal escape sequences are deprecated; for octal literals use the "0o" prefix instead'
-  ],
-  ["endOfString", "malformed escape sequence at end of string"]
-]);
+import {ErrorMessageName, errorMessages} from "./errors";
 
 function formatTestTitle(ch: string, desc?: string): string {
   return desc ? `${ch} (${desc})` : ch;
