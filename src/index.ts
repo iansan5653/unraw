@@ -127,16 +127,12 @@ function parseOctalCode(code: string, error: true): never;
 function parseOctalCode(code: string, error: boolean): string | never;
 function parseOctalCode(code: string, error: boolean = false): string | never {
   if (error) {
-    throw new SyntaxError(
-      '"0"-prefixed octal literals and octal escape sequences are ' +
-        'deprecated; for octal literals use the "0o" prefix instead'
-    );
-  } else {
-    // The original regex only allows digits so we don't need to have a strict
-    // octal parser like hexToInt
-    const parsedCode = parseInt(code, 8);
-    return String.fromCharCode(parsedCode);
+    throw new SyntaxError(errorMessages.get("octalDeprecation"));
   }
+  // The original regex only allows digits so we don't need to have a strict
+  // octal parser like hexToInt. Length is not enforced for octals.
+  const parsedCode = parseInt(code, 8);
+  return String.fromCharCode(parsedCode);
 }
 
 /**
