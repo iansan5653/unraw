@@ -14,7 +14,7 @@
 
 import * as assert from "assert";
 import unraw from "./index";
-import {ErrorMessageName, errorMessages} from "./errors";
+import {ErrorType, errorMessages} from "./errors";
 
 function formatTestTitle(ch: string, desc?: string): string {
   return desc ? `${ch} (${desc})` : ch;
@@ -68,7 +68,7 @@ function testParses(
  */
 function testErrors(
   raw: string,
-  errorName: ErrorMessageName,
+  errorName: ErrorType,
   description?: string,
   isEndOfString: boolean = false,
   allowOctals?: boolean
@@ -103,10 +103,8 @@ context("unraw", function(): void {
     assert.strictEqual(unraw("test"), "test");
   });
 
-  it("should error on 0-length escape sequence", function(): void {
-    assert.throws(function(): void {
-      unraw("test\\");
-    }, new SyntaxError(errorMessages.get("endOfString")));
+  it("errors on 0-length escape sequence", function(): void {
+    testErrors("\\", ErrorType.EndOfString, "backslash at end of string", true);
   });
 
   describe("handles single character escape sequences", function(): void {
@@ -151,12 +149,12 @@ context("unraw", function(): void {
     });
 
     describe("errors on invalid sequences", function(): void {
-      testErrors("\\x", "malformedHexadecimal", "zero digits", true);
-      testErrors("\\x5", "malformedHexadecimal", "one digit", true);
-      testErrors("\\x$$", "malformedHexadecimal", "non-hex characters");
-      testErrors("\\x-A", "malformedHexadecimal", "negative, non-hex");
-      testErrors("\\x+A", "malformedHexadecimal", "positive, non-hex");
-      testErrors("\\xA.", "malformedHexadecimal", "decimal, non-hex");
+      testErrors("\\x", ErrorType.MalformedHexadecimal, "zero digits", true);
+      testErrors("\\x5", ErrorType.MalformedHexadecimal, "one digit", true);
+      testErrors("\\x$$", ErrorType.MalformedHexadecimal, "non-hex characters");
+      testErrors("\\x-A", ErrorType.MalformedHexadecimal, "negative, non-hex");
+      testErrors("\\x+A", ErrorType.MalformedHexadecimal, "positive, non-hex");
+      testErrors("\\xA.", ErrorType.MalformedHexadecimal, "decimal, non-hex");
 
       it.skip("should have the right error", function(): void {
         // Compare the thrown error to the actual syntax error
@@ -184,14 +182,14 @@ context("unraw", function(): void {
     });
 
     describe("errors on invalid sequences", function(): void {
-      testErrors("\\u", "malformedUnicode", "zero digits", true);
-      testErrors("\\u5", "malformedUnicode", "one digit", true);
-      testErrors("\\u5A", "malformedUnicode", "two digits", true);
-      testErrors("\\u5A5", "malformedUnicode", "three digits", true);
-      testErrors("\\u$$$$", "malformedUnicode", "non-hex characters");
-      testErrors("\\u-5A5", "malformedUnicode", "negative, non-hex");
-      testErrors("\\u+5A5", "malformedUnicode", "positive, non-hex");
-      testErrors("\\u5A5.", "malformedUnicode", "decimal, non-hex");
+      testErrors("\\u", ErrorType.MalformedUnicode, "zero digits", true);
+      testErrors("\\u5", ErrorType.MalformedUnicode, "one digit", true);
+      testErrors("\\u5A", ErrorType.MalformedUnicode, "two digits", true);
+      testErrors("\\u5A5", ErrorType.MalformedUnicode, "three digits", true);
+      testErrors("\\u$$$$", ErrorType.MalformedUnicode, "non-hex characters");
+      testErrors("\\u-5A5", ErrorType.MalformedUnicode, "negative, non-hex");
+      testErrors("\\u+5A5", ErrorType.MalformedUnicode, "positive, non-hex");
+      testErrors("\\u5A5.", ErrorType.MalformedUnicode, "decimal, non-hex");
 
       it.skip("should have the right error", function(): void {
         // Compare the thrown error to the actual syntax error
@@ -226,14 +224,50 @@ context("unraw", function(): void {
       });
 
       describe("errors on invalid sequences", function(): void {
-        testErrors("\\uDA99\\u", "malformedUnicode", "zero digits", true);
-        testErrors("\\uDA99\\uD", "malformedUnicode", "one digit", true);
-        testErrors("\\uDA99\\uDD", "malformedUnicode", "two digits", true);
-        testErrors("\\uDA99\\uDD8", "malformedUnicode", "three digits", true);
-        testErrors("\\uDA99\\u$$$$", "malformedUnicode", "non-hex characters");
-        testErrors("\\uDA99\\u-5A5", "malformedUnicode", "negative, non-hex");
-        testErrors("\\uDA99\\u+5A5", "malformedUnicode", "positive, non-hex");
-        testErrors("\\uDA99\\u5A5.", "malformedUnicode", "decimal, non-hex");
+        testErrors(
+          "\\uDA99\\u",
+          ErrorType.MalformedUnicode,
+          "zero digits",
+          true
+        );
+        testErrors(
+          "\\uDA99\\uD",
+          ErrorType.MalformedUnicode,
+          "one digit",
+          true
+        );
+        testErrors(
+          "\\uDA99\\uDD",
+          ErrorType.MalformedUnicode,
+          "two digits",
+          true
+        );
+        testErrors(
+          "\\uDA99\\uDD8",
+          ErrorType.MalformedUnicode,
+          "three digits",
+          true
+        );
+        testErrors(
+          "\\uDA99\\u$$$$",
+          ErrorType.MalformedUnicode,
+          "non-hex characters"
+        );
+        testErrors(
+          "\\uDA99\\u-5A5",
+          ErrorType.MalformedUnicode,
+          "negative, non-hex"
+        );
+        testErrors(
+          "\\uDA99\\u+5A5",
+          ErrorType.MalformedUnicode,
+          "positive, non-hex"
+        );
+        testErrors(
+          "\\uDA99\\u5A5.",
+          ErrorType.MalformedUnicode,
+          "decimal, non-hex"
+        );
 
         it.skip("should have the right error", function(): void {
           // Compare the thrown error to the actual syntax error
@@ -271,18 +305,23 @@ context("unraw", function(): void {
     });
 
     describe("errors on invalid sequences", function(): void {
-      testErrors("\\u{}", "malformedUnicode", "zero digits");
-      testErrors("\\u{FFFFFF}", "codePointLimit", "too high");
+      testErrors("\\u{}", ErrorType.MalformedUnicode, "zero digits");
+      testErrors("\\u{FFFFFF}", ErrorType.CodePointLimit, "too high");
       testErrors(
         "\\uDA99\\u{FFFFFF}",
-        "codePointLimit",
+        ErrorType.CodePointLimit,
         "too high - should not be considered surrogate"
       );
-      testErrors("\\u{$$$$}", "malformedUnicode", "non-hex characters");
-      testErrors("\\u{-1}", "malformedUnicode", "negative, non-hex");
-      testErrors("\\u{+1}", "malformedUnicode", "positive, non-hex");
-      testErrors("\\u{1.}", "malformedUnicode", "decimal, non-hex");
-      testErrors("\\u{1", "malformedUnicode", "unclosed sequence", true);
+      testErrors("\\u{$$$$}", ErrorType.MalformedUnicode, "non-hex characters");
+      testErrors("\\u{-1}", ErrorType.MalformedUnicode, "negative, non-hex");
+      testErrors("\\u{+1}", ErrorType.MalformedUnicode, "positive, non-hex");
+      testErrors("\\u{1.}", ErrorType.MalformedUnicode, "decimal, non-hex");
+      testErrors(
+        "\\u{1",
+        ErrorType.MalformedUnicode,
+        "unclosed sequence",
+        true
+      );
 
       it.skip("should have the right error", function(): void {
         // Compare the thrown error to the actual syntax error
@@ -300,9 +339,9 @@ context("unraw", function(): void {
       testParses("\\-1", "-1", "not an octal sequence");
 
       describe("errors on octal sequences", function(): void {
-        testErrors("\\1", "octalDeprecation", "one digit", true);
-        testErrors("\\00", "octalDeprecation", "two digits", true);
-        testErrors("\\101", "octalDeprecation", "three digits", true);
+        testErrors("\\1", ErrorType.OctalDeprecation, "one digit", true);
+        testErrors("\\00", ErrorType.OctalDeprecation, "two digits", true);
+        testErrors("\\101", ErrorType.OctalDeprecation, "three digits", true);
       });
     });
 

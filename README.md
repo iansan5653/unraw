@@ -73,12 +73,18 @@ unraw(String.raw`Octal: \102`, true) // => Octal: B
 If desired, you can access the error messages for comparison from the `errors`
 submodule:
 ```ts
-import {errorMessages} from "unraw/dist/errors";
+import {ErrorType, errorMessages} from "unraw/dist/errors";
 
-const hexErrorMessage = errorMessages.get("malformedHexadecimal");
+try {
+  unraw("\\u25");
+} catch (err) {
+  if(err.message === errorMessages.get(ErrorType.MalformedUnicode)) {
+    console.error("String had an invalid Unicode escape sequence.");
+  }
+}
 ```
-The full list of error message names available as `errorMessages.keys()` or as
-the `ErrorMessageName` type in TypeScript. All errors thrown are `SyntaxError`s.
+The full list of error message names available through the `ErrorType` enum
+(exposed as a normal object in JavaScript).
 
 ## Contributing
 

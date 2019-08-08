@@ -6,7 +6,7 @@
  * @license MIT
  */
 
-import {ErrorMessageName, errorMessages} from "./errors";
+import {ErrorType, errorMessages} from "./errors";
 
 /**
  * Parse a string as a base-16 number. This is more strict than parseInt as it
@@ -31,7 +31,7 @@ function parseHexToInt(hex: string): number {
  */
 function validateAndParseHex(
   hex: string,
-  errorName: ErrorMessageName,
+  errorName: ErrorType,
   enforcedLength?: number
 ): number {
   const parsedHex = parseHexToInt(hex);
@@ -52,7 +52,11 @@ function validateAndParseHex(
  * length.
  */
 function parseHexadecimalCode(code: string): string {
-  const parsedCode = validateAndParseHex(code, "malformedHexadecimal", 2);
+  const parsedCode = validateAndParseHex(
+    code,
+    ErrorType.MalformedHexadecimal,
+    2
+  );
   return String.fromCharCode(parsedCode);
 }
 
@@ -66,12 +70,12 @@ function parseHexadecimalCode(code: string): string {
  * length.
  */
 function parseUnicodeCode(code: string, surrogateCode?: string): string {
-  const parsedCode = validateAndParseHex(code, "malformedUnicode", 4);
+  const parsedCode = validateAndParseHex(code, ErrorType.MalformedUnicode, 4);
 
   if (surrogateCode !== undefined) {
     const parsedSurrogateCode = validateAndParseHex(
       surrogateCode,
-      "malformedUnicode",
+      ErrorType.MalformedUnicode,
       4
     );
     return String.fromCharCode(parsedCode, parsedSurrogateCode);
@@ -98,16 +102,19 @@ function isCurlyBraced(text: string): boolean {
  */
 function parseUnicodeCodePointCode(codePoint: string): string {
   if (!isCurlyBraced(codePoint)) {
-    throw new SyntaxError(errorMessages.get("malformedUnicode"));
+    throw new SyntaxError(errorMessages.get(ErrorType.MalformedUnicode));
   }
   const withoutBraces = codePoint.slice(1, -1);
-  const parsedCode = validateAndParseHex(withoutBraces, "malformedUnicode");
+  const parsedCode = validateAndParseHex(
+    withoutBraces,
+    ErrorType.MalformedUnicode
+  );
 
   try {
     return String.fromCodePoint(parsedCode);
   } catch (err) {
     throw err instanceof RangeError
-      ? new SyntaxError(errorMessages.get("codePointLimit"))
+      ? new SyntaxError(errorMessages.get(ErrorType.CodePointLimit))
       : err;
   }
 }
@@ -127,7 +134,7 @@ function parseOctalCode(code: string, error: true): never;
 function parseOctalCode(code: string, error: boolean): string | never;
 function parseOctalCode(code: string, error: boolean = false): string | never {
   if (error) {
-    throw new SyntaxError(errorMessages.get("octalDeprecation"));
+    throw new SyntaxError(errorMessages.get(ErrorType.OctalDeprecation));
   }
   // The original regex only allows digits so we don't need to have a strict
   // octal parser like hexToInt. Length is not enforced for octals.
@@ -226,6 +233,6 @@ export default function unraw(
     if (singleCharacter !== undefined) {
       return parseSingleCharacterCode(singleCharacter);
     }
-    throw new SyntaxError(errorMessages.get("endOfString"));
+    throw new SyntaxError(errorMessages.get(ErrorType.EndOfString));
   });
 }
