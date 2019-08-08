@@ -37,7 +37,7 @@ function testParses(
 ): void {
   const suiteTitle = formatTestTitle(raw, description);
 
-  function runTests(): void {
+  context(suiteTitle, function(): void {
     /** List of tests to run in `[title, stringToUnraw, cookedString]` form. */
     const tests: Array<[string, string, string]> = [
       ["should parse alone", `${raw}`, `${cooked}`],
@@ -51,9 +51,7 @@ function testParses(
         assert.strictEqual(unraw(raw, allowOctals), cooked);
       });
     });
-  }
-
-  context(suiteTitle, runTests);
+  });
 }
 
 /**
@@ -78,7 +76,7 @@ function testErrors(
   const title = formatTestTitle(raw, description);
   const error = new SyntaxError(errorMessages.get(errorName));
 
-  function runTests(): void {
+  context(title, function(): void {
     /** List of tests to run in `[title, stringToAttemptUnraw]` form. */
     const tests: Array<[string, string]> = [
       ["should error alone", `${raw}`],
@@ -97,9 +95,7 @@ function testErrors(
         assert.throws((): string => unraw(raw, allowOctals), error);
       });
     });
-  }
-
-  context(title, runTests);
+  });
 }
 
 context("unraw", function(): void {
