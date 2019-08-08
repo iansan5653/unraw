@@ -6,6 +6,7 @@ opposite of
 [`String.raw`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw).
 
 ## Use Case
+
 Most of the time, you probably don't need this library unless you're working
 directly with raw strings and you need a way to get them back to normal strings.
 Maybe the most signicant use case is when building
@@ -13,27 +14,65 @@ Maybe the most signicant use case is when building
 you can use the `.raw` property of the passed string array to access the raw
 strings, but then you may want to still return normal strings after processing.
 
-## Installation
-This is a UMD module.
+## Getting Started
 
-`unraw` is hosted on [NPM](https://www.npmjs.com/unraw):
+`unraw` is a UMD module, so it can be used in Node or on the web. Typings are
+included for TypeScript as well.
+
+### Usage in Node.JS
+
+`unraw` is hosted on [npm](https://www.npmjs.com/unraw), so you can install
+with:
+
 ```bash
 npm i unraw
 ```
 
-You can embed it (minified) on a webpage with [UNPKG](https://unpkg.com): 
-https://unpkg.com/unraw
+To use in code:
+
+```js
+import unraw from "unraw";
+
+unraw("\\n");
+```
+
+If you want to access error messages:
+
+```js
+import {unraw, errorMessages, ErrorType} from "unraw";
+
+unraw("\\n");
+errorMessages.get(ErrorType.MalformedUnicode);
+```
+
+### Usage in the Browser
+
+You can embed it (minified) on a webpage with
+[RequireJS](https://requirejs.org/). The module is available on
+[UNPKG](https://unpkg.com) at https://unpkg.com/unraw:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script>
+  require(["https://unpkg.com/unraw^1.2.3/dist/index.min.js"], function(unraw) {
+    unraw.unraw("\\n");
+    unraw.errorMessages.get(unraw.ErrorType.MalformedUnicode);
+  });
+</script>
+```
+
+_Note_: Importing via the 'bare' url (`https://unpkg.com/unraw`) is not
+supported as it breaks references to other required files.
 
 ## Usage
-Usage is simple - the library exports just one function, `unraw`. The first
+
+Usage is simple - the library exports a default function, `unraw`. The first
 argument to `unraw` is the string to parse, and the second is an optional flag
 to allow or disallow octal escapes, which are deprecated (defaults to
 `false`, so the default behavior is to throw an error when octal sequences
 are encountered).
 
 ```js
-import unraw from "unraw";
-
 unraw("\\t\\tThis is indented.");
 // => "		This is indented."
 ```
@@ -70,25 +109,27 @@ unraw(String.raw`Octal: \102`, true) // => Octal: B
 ```
 
 ### Errors
-If desired, you can access the error messages for comparison from the `errors`
-submodule:
+
+If desired, you can access the possible error messages to help identify errors:
+
 ```ts
-import {ErrorType, errorMessages} from "unraw/dist/errors";
+import {unraw, ErrorType, errorMessages} from "unraw";
 
 try {
   unraw("\\u25");
 } catch (err) {
-  if(err.message === errorMessages.get(ErrorType.MalformedUnicode)) {
+  if (err.message === errorMessages.get(ErrorType.MalformedUnicode)) {
     console.error("String had an invalid Unicode escape sequence.");
   }
 }
 ```
+
 The full list of error message names available through the `ErrorType` enum
 (exposed as a normal object in JavaScript).
 
 ## Contributing
 
-Found a bug? Please, 
+Found a bug? Please,
 [submit it here.](https://github.com/iansan5653/compress-tag/issues)
 
 Pull requests are always welcome, although to increase your chances of your
@@ -98,18 +139,22 @@ good idea.
 Pull requests will not be merged unless the Azure Pipelines build succeeds.
 This means that all checks must pass and code must be free of lint errors. To
 quickly confirm that it will, just run:
+
 ```bash
 npm run check
 ```
+
 This checks your formatting, tests, and for TypeScript compiler errors. If the
 task doesn't fail, you should be good to go.
 
 ### Other Tasks
+
 For your convenience, some other tasks are also provided in the `package.json`:
-* `npm run build` - Compiles TypeScript code to JavaScript
-* `npm run minify` - Generate minified JavaScript files from compiled files
-* `npm run test` - Quickly run tests using TypeScript code without compiling
-* `npm run testWithCoverage` - Run tests and generate coverage report
-* `npm run lint` - Check code for linting errors
-* `npm run check` - Check to ensure code will pass Pipelines checks (see above)
-* `npm run format` - Format code using Prettier
+
+- `npm run build` - Compiles TypeScript code to JavaScript
+- `npm run minify` - Generate minified JavaScript files from compiled files
+- `npm run test` - Quickly run tests using TypeScript code without compiling
+- `npm run testWithCoverage` - Run tests and generate coverage report
+- `npm run lint` - Check code for linting errors
+- `npm run check` - Check to ensure code will pass Pipelines checks (see above)
+- `npm run format` - Format code using Prettier

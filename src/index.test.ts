@@ -14,7 +14,7 @@
 
 import * as assert from "assert";
 import unraw from "./index";
-import {ErrorType, errorMessages} from "./errors";
+import {ErrorType, errorMessages} from "./index";
 
 function formatTestTitle(ch: string, desc?: string): string {
   return desc ? `${ch} (${desc})` : ch;

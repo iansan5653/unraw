@@ -6,7 +6,9 @@
  * @license MIT
  */
 
+
 import {ErrorType, errorMessages} from "./errors";
+export {ErrorType, errorMessages};
 
 /**
  * Parse a string as a base-16 number. This is more strict than parseInt as it
@@ -192,7 +194,7 @@ const escapeMatch = /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([^{]
  * @returns The processed string, with escape characters replaced by their
  * respective actual Unicode characters.
  */
-export default function unraw(
+export function unraw(
   raw: string,
   allowOctals: boolean = false
 ): string {
@@ -236,3 +238,4 @@ export default function unraw(
     throw new SyntaxError(errorMessages.get(ErrorType.EndOfString));
   });
 }
+export default unraw;

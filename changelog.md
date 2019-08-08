@@ -2,6 +2,11 @@
 
 All notable outward-facing changes will be documented in this file.
 
+## 1.2.3
+- Improve UMD documentation
+- Export `unraw`, `ErrorType`, and `errorMessages` from main module along with
+  default export
+
 ## 1.2.2
 - Update readme
 - Publish types for `errors.ts`
