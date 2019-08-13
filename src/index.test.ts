@@ -9,12 +9,15 @@
   eslint-disable max-len,
   no-useless-escape,
   mocha/no-setup-in-describe,
-  mocha/max-top-level-suites
+  mocha/max-top-level-suites,
+  no-invalid-this
 */
 
 import * as assert from "assert";
 import unraw from "./index";
 import {ErrorType, errorMessages} from "./index";
+import fs from "fs";
+import path from "path";
 
 function formatTestTitle(ch: string, desc?: string): string {
   return desc ? `${ch} (${desc})` : ch;
@@ -103,7 +106,7 @@ context("unraw", function(): void {
     assert.strictEqual(unraw("test"), "test");
   });
 
-  it("errors on 0-length escape sequence", function(): void {
+  describe("errors on 0-length escape sequence", function(): void {
     testErrors("\\", ErrorType.EndOfString, "backslash at end of string", true);
   });
 
@@ -358,6 +361,40 @@ context("unraw", function(): void {
       testParses("\\377", "\u00FF", "maximum value", true);
       testParses("\\400", "\u00200", "higher than maximum value", true);
       testParses("\\119", "\u00099", "non-octal digit", true);
+    });
+  });
+
+  describe("performs well on large text", function(): void {
+    const testFilesDir = path.join(__dirname, "..", "test_files");
+
+    context("with no matches", function(): void {
+      let text: string;
+
+      before("load file", function(): void {
+        text = fs
+          .readFileSync(path.join(testFilesDir, "no_matches.txt"))
+          .toString();
+      });
+
+      it("processes large text with no matches quickly", function(): void {
+        this.timeout(500);
+        unraw(text);
+      });
+    });
+
+    context("with matches", function(): void {
+      let text: string;
+
+      before("load file", function(): void {
+        text = fs
+          .readFileSync(path.join(testFilesDir, "matches.txt"))
+          .toString();
+      });
+
+      it("processes large text with matches quickly", function(): void {
+        this.timeout(500);
+        unraw(text);
+      });
     });
   });
 });
