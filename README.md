@@ -14,6 +14,10 @@ Maybe the most signicant use case is when building
 you can use the `.raw` property of the passed string array to access the raw
 strings, but then you may want to still return normal strings after processing.
 
+The module is also useful for parsing text files written with escape sequences,
+although keep in mind that the JavaScript flavor of escape sequences may differ
+from the flavor used in an input file.
+
 ## Getting Started
 
 `unraw` is a UMD module, so it can be used in Node or on the web. Typings are
