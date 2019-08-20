@@ -4,8 +4,8 @@
 [![Azure DevOps tests](https://img.shields.io/azure-devops/tests/iansan5653/unraw/3?compact_message)](https://dev.azure.com/iansan5653/unraw/_build/latest?definitionId=3&branchName=master)
 [![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/iansan5653/unraw/3)](https://dev.azure.com/iansan5653/unraw/_build/latest?definitionId=3&branchName=master)
 [![npm](https://img.shields.io/npm/v/unraw)](https://www.npmjs.com/package/unraw)
-[![David](https://img.shields.io/david/iansan5653/unraw)](https://david-dm.org/iansan5653/unraw)
-[![David](https://img.shields.io/david/dev/iansan5653/unraw)](https://david-dm.org/iansan5653/unraw?type=dev)
+[![David](https://david-dm.org/iansan5653/unraw.svg)](https://david-dm.org/iansan5653/unraw)
+[![David](https://david-dm.org/iansan5653/unraw/dev-status.svg)](https://david-dm.org/iansan5653/unraw?type=dev)
 
 ```ts
 unraw("\\'\\t\\u{1f601}\\'"); // -> "'	😁'"
