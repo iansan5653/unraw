@@ -1,6 +1,17 @@
 # unraw
 
-Unraw is a small module that converts raw strings to parsed strings in the same
+[![Build Status](https://dev.azure.com/iansan5653/unraw/_apis/build/status/iansan5653.unraw?branchName=master)](https://dev.azure.com/iansan5653/unraw/_build/latest?definitionId=3&branchName=master)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/iansan5653/unraw/3?compact_message)](https://dev.azure.com/iansan5653/unraw/_build/latest?definitionId=3&branchName=master)
+[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/iansan5653/unraw/3)](https://dev.azure.com/iansan5653/unraw/_build/latest?definitionId=3&branchName=master)
+[![npm](https://img.shields.io/npm/v/unraw)](https://www.npmjs.com/package/unraw)
+[![David](https://img.shields.io/david/iansan5653/unraw)](https://david-dm.org/iansan5653/unraw)
+[![David](https://img.shields.io/david/dev/iansan5653/unraw)](https://david-dm.org/iansan5653/unraw?type=dev)
+
+```ts
+unraw("\\'\\t\\u{1f601}\\'"); // -> "'	😁'"
+```
+
+`unraw` is a small module that converts raw strings to parsed strings in the same
 manner as the standard JavaScript escaping engine. In essence, it is the exact
 opposite of
 [`String.raw`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw).
@@ -134,7 +145,7 @@ The full list of error message names available through the `ErrorType` enum
 ## Contributing
 
 Found a bug? Please,
-[submit it here.](https://github.com/iansan5653/compress-tag/issues)
+[submit it here.](https://github.com/iansan5653/unraw/issues)
 
 Pull requests are always welcome, although to increase your chances of your
 contribution being accepted, opening an issue and linking to it is always a
