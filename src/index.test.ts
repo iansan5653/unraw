@@ -73,7 +73,7 @@ function testErrors(
   raw: string,
   errorName: ErrorType,
   description?: string,
-  isEndOfString: boolean = false,
+  isEndOfString = false,
   allowOctals?: boolean
 ): void {
   const title = formatTestTitle(raw, description);

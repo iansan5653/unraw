@@ -134,7 +134,7 @@ function parseOctalCode(code: string, error: true): never;
 // Have to give overload that takes boolean for when compiler doesn't know if
 // true or false
 function parseOctalCode(code: string, error: boolean): string | never;
-function parseOctalCode(code: string, error: boolean = false): string | never {
+function parseOctalCode(code: string, error = false): string | never {
   if (error) {
     throw new SyntaxError(errorMessages.get(ErrorType.OctalDeprecation));
   }
@@ -196,7 +196,7 @@ const escapeMatch = /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([^{]
  */
 export function unraw(
   raw: string,
-  allowOctals: boolean = false
+  allowOctals = false
 ): string {
   return raw.replace(escapeMatch, function(
     _,

@@ -55,7 +55,7 @@
     "@typescript-eslint/prefer-for-of": "error",
     "@typescript-eslint/no-parameter-properties": "off",
     "@typescript-eslint/camelcase": "off",
-    "@typescript-eslint/array-type": ["error", "array-simple"],
+    "@typescript-eslint/array-type": ["error", {"default": "array-simple"}],
     //: Off because sometimes using any makes sense; ie: `(...args: any[]) -> any`
     "@typescript-eslint/no-explicit-any": "off",
     "max-len": [
