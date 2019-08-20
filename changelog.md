@@ -2,6 +2,12 @@
 
 All notable outward-facing changes will be documented in this file.
 
+## 1.2.4
+ - Add security policy
+ - Add badges and code block to readme
+ - Update dependencies
+ - Clean up some type annotations for inferred types
+
 ## 1.2.3
 - Improve UMD documentation
 - Export `unraw`, `ErrorType`, and `errorMessages` from main module along with
