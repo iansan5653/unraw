@@ -11,10 +11,12 @@ import {ErrorType, errorMessages} from "./errors";
 export {ErrorType, errorMessages};
 
 /**
- * Parse a string as a base-16 number. This is more strict than parseInt as it
+ * Parse a string as a base-16 number. This is more strict than `parseInt` as it
  * will not allow any other characters, including (for example) "+", "-", and
  * ".".
  * @param hex A string containing a hexadecimal number.
+ * @returns The parsed integer, or `NaN` if the string is not a valid hex
+ * number.
  */
 function parseHexToInt(hex: string): number {
   const isOnlyHexChars = !hex.match(/[^a-f0-9]/i);
@@ -22,13 +24,14 @@ function parseHexToInt(hex: string): number {
 }
 
 /**
- * Check the validity and length of a four-digit hexadecimal code.
+ * Check the validity and length of a hexadecimal code and optionally enforces
+ * a specific number of hex digits.
  * @param hex The string to validate and parse.
  * @param errorName The name of the error message to throw a `SyntaxError` with
- * if `hex` is invalid.
- * @param enforcedLength If provided, will throw an error if `hex` is not this
- * long exactly.
- * @returns The parsed code.
+ * if `hex` is invalid. This is used to index `errorMessages`.
+ * @param enforcedLength If provided, will throw an error if `hex` is not
+ * exactly this many characters.
+ * @returns The parsed hex number as a normal number.
  * @throws {SyntaxError} If the code is not valid.
  */
 function validateAndParseHex(
@@ -47,9 +50,10 @@ function validateAndParseHex(
 }
 
 /**
- * Parse a hexadecimal escape code.
- * @param code The two-character hex code that represents the character to
+ * Parse a two-digit hexadecimal character escape code.
+ * @param code The two-digit hexadecimal number that represents the character to
  * output.
+ * @returns The single character represented by the code.
  * @throws {SyntaxError} If the code is not valid hex or is not the right
  * length.
  */
@@ -63,11 +67,12 @@ function parseHexadecimalCode(code: string): string {
 }
 
 /**
- * Parse a Unicode escape code.
+ * Parse a four-digit Unicode character escape code.
  * @param code The four-digit unicode number that represents the character to
  * output.
- * @param surrogateCode The four-digit unicode surrogate that represents the
- * character to output.
+ * @param surrogateCode Optional four-digit unicode surrogate that represents
+ * the other half of the character to output.
+ * @returns The single character represented by the code.
  * @throws {SyntaxError} If the codes are not valid hex or are not the right
  * length.
  */
@@ -96,9 +101,10 @@ function isCurlyBraced(text: string): boolean {
 }
 
 /**
- * Parse a Unicode code point escape code.
- * @param codePoint A unicode escape code, including the surrounding curly
+ * Parse a Unicode code point character escape code.
+ * @param codePoint A unicode escape code point, including the surrounding curly
  * braces.
+ * @returns The single character represented by the code.
  * @throws {SyntaxError} If the code is not valid hex or does not have the
  * surrounding curly braces.
  */
@@ -127,6 +133,7 @@ function parseUnicodeCodePointCode(codePoint: string): string {
  * octal escape code will never be matched.
  * @param error If `true`, will throw an error without attempting to parse the
  * code.
+ * @returns The single character represented by the code.
  * @throws {SyntaxError} Only if `throw` is `true`.
  */
 function parseOctalCode(code: string, error: false): string;
