@@ -70,6 +70,7 @@
         "ignoreTemplateLiterals": false,
         "ignoreRegExpLiterals": true
       }
-    ]
+    ],
+    "operator-linebreak": ["off"]
   }
 }
