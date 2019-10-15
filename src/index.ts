@@ -42,7 +42,8 @@ function validateAndParseHex(
   const parsedHex = parseHexToInt(hex);
   if (
     Number.isNaN(parsedHex) ||
-    (enforcedLength && hex.length !== enforcedLength)
+    (enforcedLength === undefined && hex.length !== enforcedLength)
+    // TODO: When TS 3.7 is released, replace `=== undefined` with `??`
   ) {
     throw new SyntaxError(errorMessages.get(errorName));
   }
