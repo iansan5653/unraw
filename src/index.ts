@@ -179,7 +179,7 @@ function parseSingleCharacterCode(code: string): string {
  * Matches every escape sequence possible, including invalid ones.
  *
  * All capture groups (described below) are unique (only one will match), except
- * for 3 and 4 which always match together.
+ * for 4, which can only potentially match if 3 does.
  *
  * **Capture Groups:**
  * 0. A single backslash
