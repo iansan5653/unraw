@@ -137,11 +137,11 @@ function parseUnicodeCodePointCode(codePoint: string): string {
  * @returns The single character represented by the code.
  * @throws {SyntaxError} Only if `throw` is `true`.
  */
-function parseOctalCode(code: string, error: false): string;
 function parseOctalCode(code: string, error: true): never;
+function parseOctalCode(code: string, error?: false): string;
+function parseOctalCode(code: string, error: boolean): string | never
 // Have to give overload that takes boolean for when compiler doesn't know if
 // true or false
-function parseOctalCode(code: string, error: boolean): string | never;
 function parseOctalCode(code: string, error = false): string | never {
   if (error) {
     throw new SyntaxError(errorMessages.get(ErrorType.OctalDeprecation));
