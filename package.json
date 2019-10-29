@@ -36,7 +36,7 @@
     "cross-var": "^1.1.0",
     "eslint": "^6.2.1",
     "eslint-config-google": "^0.14.0",
-    "eslint-plugin-jsdoc": "^15.8.3",
+    "eslint-plugin-jsdoc": "^16.1.1",
     "eslint-plugin-mocha": "^6.0.0",
     "mocha": "^6.2.0",
     "mocha-junit-reporter": "^1.23.1",
