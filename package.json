@@ -27,7 +27,7 @@
   "license": "MIT",
   "devDependencies": {
     "@node-minify/cli": "^4.1.2",
-    "@node-minify/core": "^4.1.2",
+    "@node-minify/core": "^5.0.0",
     "@node-minify/uglify-es": "^4.1.2",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.7.2",
