@@ -6,7 +6,6 @@
  * @license MIT
  */
 
-
 import {ErrorType, errorMessages} from "./errors";
 export {ErrorType, errorMessages};
 
@@ -42,8 +41,7 @@ function validateAndParseHex(
   const parsedHex = parseHexToInt(hex);
   if (
     Number.isNaN(parsedHex) ||
-    (enforcedLength !== undefined && hex.length !== enforcedLength)
-    // TODO: When TS 3.7 is released, replace `=== undefined` with `??`
+    (enforcedLength !== undefined && enforcedLength !== hex.length)
   ) {
     throw new SyntaxError(errorMessages.get(errorName));
   }
@@ -139,7 +137,7 @@ function parseUnicodeCodePointCode(codePoint: string): string {
  */
 function parseOctalCode(code: string, error: true): never;
 function parseOctalCode(code: string, error?: false): string;
-function parseOctalCode(code: string, error: boolean): string | never
+function parseOctalCode(code: string, error: boolean): string | never;
 // Have to give overload that takes boolean for when compiler doesn't know if
 // true or false
 function parseOctalCode(code: string, error = false): string | never {
@@ -202,10 +200,7 @@ const escapeMatch = /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([^{]
  * @returns The processed string, with escape characters replaced by their
  * respective actual Unicode characters.
  */
-export function unraw(
-  raw: string,
-  allowOctals = false
-): string {
+export function unraw(raw: string, allowOctals = false): string {
   return raw.replace(escapeMatch, function(
     _,
     backslash?: string,
