@@ -1,6 +1,6 @@
 {
   "name": "unraw",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Convert raw escape sequences to their respective characters (undo String.raw).",
   "main": "dist/index.js",
   "unpkg": "dist/index.min.js",
