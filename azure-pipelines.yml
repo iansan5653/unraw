@@ -30,16 +30,17 @@ steps:
 
   - script: npm run testForCI
     displayName: "Run tests"
-    continueOnError: true
 
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: "jUnit"
       testResultsFiles: "test-results.xml"
     displayName: "Publish test results"
+    condition: eq(variables['testsRan'], 'true')
 
   - task: PublishCodeCoverageResults@1
     inputs:
       codeCoverageTool: "cobertura"
       summaryFileLocation: "coverage/cobertura-coverage.xml"
       reportDirectory: "coverage"
+    condition: eq(variables['testsRan'], 'true')

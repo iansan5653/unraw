@@ -398,3 +398,5 @@ context("unraw", function(): void {
     });
   });
 });
+
+console.log("##vso[task.setvariable variable=testsRan]true");
