@@ -2,6 +2,12 @@
 
 All notable outward-facing changes will be documented in this file.
 
+## 1.2.5
+
+- Fix minor inconsistencies
+- Improve JSDoc and type hints
+- Update dependencies
+
 ## 1.2.4
  - Add security policy
  - Add badges and code block to readme
