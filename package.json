@@ -29,7 +29,7 @@
     "@node-minify/core": "^5.2.1",
     "@node-minify/cli": "^5.2.1",
     "@node-minify/uglify-es": "^5.2.0",
-    "@types/mocha": "^5.2.7",
+    "@types/mocha": "^7.0.0",
     "@types/node": "^13.1.0",
     "@typescript-eslint/eslint-plugin": "^2.8.0",
     "@typescript-eslint/parser": "^2.8.0",
