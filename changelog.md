@@ -2,6 +2,10 @@
 
 All notable outward-facing changes will be documented in this file.
 
+## 2.0.0
+
+- Change to CommonJS module form
+
 ## 1.2.5
 
 - Fix minor inconsistencies
