@@ -83,24 +83,5 @@
     "unescape",
     "unicode",
     "decode"
-  ],
-  "greenkeeper": {
-    "commitMessages": {
-      "initialBadge": "Add Greenkeeper badge",
-      "initialDependencies": "Update dependencies",
-      "initialBranches": "Whitelist greenkeeper branches",
-      "dependencyUpdate": "Update ${dependency} to version ${version}",
-      "devDependencyUpdate": "Update ${dependency} to version ${version}",
-      "dependencyPin": "Pin ${dependency} to ${oldVersion}",
-      "devDependencyPin": "Pin ${dependency} to ${oldVersion}"
-    },
-    "prTitles": {
-      "initialPR": "Update dependencies to enable Greenkeeper",
-      "initialPrBadge": "Add badge to enable Greenkeeper",
-      "initialPrBadgeOnly": "Add Greenkeeper badge",
-      "initialSubgroupPR": "Update dependencies for ${group}",
-      "basicPR": "Update ${dependency} to the latest",
-      "groupPR": "Update ${dependency} in group ${group} to the latest"
-    }
-  }
+  ]
 }
