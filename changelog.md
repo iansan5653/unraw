@@ -2,6 +2,10 @@
 
 All notable outward-facing changes will be documented in this file.
 
+## 2.0.1
+
+- Update dependencies to fix security vulnerabilities
+
 ## 2.0.0
 
 - Change to CommonJS module form
