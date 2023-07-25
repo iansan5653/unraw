@@ -1,10 +1,3 @@
-/**
- * @file **unraw - errors.ts** | Error messages used by `unraw`.
- * @author Ian Sanders
- * @copyright 2019 Ian Sanders
- * @license MIT
- */
-
 // NOTE: don't construct errors here or they'll have the wrong stack trace.
 // NOTE: don't make custom error class; the JS engines use `SyntaxError`
 

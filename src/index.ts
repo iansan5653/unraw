@@ -1,11 +1,3 @@
-/**
- * @file **unraw** | Convert raw escape sequences to their respective characters
- * (undo `String.raw`).
- * @author Ian Sanders
- * @copyright 2019 Ian Sanders
- * @license MIT
- */
-
 import {ErrorType, errorMessages} from "./errors";
 export {ErrorType, errorMessages};
 
