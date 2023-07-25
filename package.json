@@ -31,7 +31,7 @@
     "eslint-plugin-jsdoc": "^22.1.0",
     "eslint-plugin-mocha": "^6.3.0",
     "mocha": "^10.2.0",
-    "prettier": "^2.0.2",
+    "prettier": "^3.0.0",
     "ts-mocha": "^10.0.0",
     "typescript": "^3.8.3"
   },

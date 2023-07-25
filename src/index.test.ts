@@ -33,7 +33,7 @@ function testParses(
 ): void {
   const suiteTitle = formatTestTitle(raw, description);
 
-  context(suiteTitle, function(): void {
+  context(suiteTitle, function (): void {
     /** List of tests to run in `[title, stringToUnraw, cookedString]` form. */
     const tests: Array<[string, string, string]> = [
       ["should parse alone", `${raw}`, `${cooked}`],
@@ -43,7 +43,7 @@ function testParses(
     ];
 
     tests.forEach(([testTitle, raw, cooked]): void => {
-      it(testTitle, function(): void {
+      it(testTitle, function (): void {
         assert.strictEqual(unraw(raw, allowOctals), cooked);
       });
     });
@@ -72,7 +72,7 @@ function testErrors(
   const title = formatTestTitle(raw, description);
   const error = new SyntaxError(errorMessages.get(errorName));
 
-  context(title, function(): void {
+  context(title, function (): void {
     /** List of tests to run in `[title, stringToAttemptUnraw]` form. */
     const tests: Array<[string, string]> = [
       ["should error alone", `${raw}`],
@@ -87,23 +87,23 @@ function testErrors(
     }
 
     tests.forEach(([testTitle, raw]): void => {
-      it(testTitle, function(): void {
+      it(testTitle, function (): void {
         assert.throws((): string => unraw(raw, allowOctals), error);
       });
     });
   });
 }
 
-context("unraw", function(): void {
-  it("should not affect strings with no escape sequences", function(): void {
+context("unraw", function (): void {
+  it("should not affect strings with no escape sequences", function (): void {
     assert.strictEqual(unraw("test"), "test");
   });
 
-  describe("errors on 0-length escape sequence", function(): void {
+  describe("errors on 0-length escape sequence", function (): void {
     testErrors("\\", ErrorType.EndOfString, "backslash at end of string", true);
   });
 
-  describe("handles single character escape sequences", function(): void {
+  describe("handles single character escape sequences", function (): void {
     testParses("\\\\", "\\", "backslash");
     testParses("\\b", "\b", "backspace character");
     testParses("\\f", "\f", "form feed");
@@ -121,13 +121,13 @@ context("unraw", function(): void {
     testParses("\\X", "X", "uppercase X");
     testParses("\\U", "U", "uppercase U");
 
-    describe("handles deeper escape levels", function(): void {
+    describe("handles deeper escape levels", function (): void {
       testParses("\\\\t", "\\t", "even number of escapes");
       testParses("\\\\\\t", "\\\t", "odd number of escapes");
     });
   });
 
-  describe("handles hexadecimal escape sequences", function(): void {
+  describe("handles hexadecimal escape sequences", function (): void {
     testParses(
       "\\X00",
       "X00",
@@ -139,12 +139,12 @@ context("unraw", function(): void {
     testParses("\\xfa", "\xfa", "lowercase");
     testParses("\\xFa", "\xFa", "mixed case");
 
-    describe("handles deeper escape levels", function(): void {
+    describe("handles deeper escape levels", function (): void {
       testParses("\\\\x5A", "\\x5A", "even number of escapes");
       testParses("\\\\\\x5A", "\\\x5A", "odd number of escapes");
     });
 
-    describe("errors on invalid sequences", function(): void {
+    describe("errors on invalid sequences", function (): void {
       testErrors("\\x", ErrorType.MalformedHexadecimal, "zero digits", true);
       testErrors("\\x5", ErrorType.MalformedHexadecimal, "one digit", true);
       testErrors("\\x$$", ErrorType.MalformedHexadecimal, "non-hex characters");
@@ -152,7 +152,7 @@ context("unraw", function(): void {
       testErrors("\\x+A", ErrorType.MalformedHexadecimal, "positive, non-hex");
       testErrors("\\xA.", ErrorType.MalformedHexadecimal, "decimal, non-hex");
 
-      it.skip("should have the right error", function(): void {
+      it.skip("should have the right error", function (): void {
         // Compare the thrown error to the actual syntax error
         // Trying to find a way to do this without the TypeScript compiler
         // failing on compile
@@ -160,7 +160,7 @@ context("unraw", function(): void {
     });
   });
 
-  describe("handles Unicode escape sequences", function(): void {
+  describe("handles Unicode escape sequences", function (): void {
     testParses(
       "\\U0000",
       "U0000",
@@ -172,12 +172,12 @@ context("unraw", function(): void {
     testParses("\\ufafa", "\ufafa", "lowercase");
     testParses("\\ufAFa", "\ufAFa", "mixed case");
 
-    describe("handles deeper escape levels", function(): void {
+    describe("handles deeper escape levels", function (): void {
       testParses("\\\\u5A5A", "\\u5A5A", "even number of escapes");
       testParses("\\\\\\u5A5A", "\\\u5A5A", "odd number of escapes");
     });
 
-    describe("errors on invalid sequences", function(): void {
+    describe("errors on invalid sequences", function (): void {
       testErrors("\\u", ErrorType.MalformedUnicode, "zero digits", true);
       testErrors("\\u5", ErrorType.MalformedUnicode, "one digit", true);
       testErrors("\\u5A", ErrorType.MalformedUnicode, "two digits", true);
@@ -187,14 +187,14 @@ context("unraw", function(): void {
       testErrors("\\u+5A5", ErrorType.MalformedUnicode, "positive, non-hex");
       testErrors("\\u5A5.", ErrorType.MalformedUnicode, "decimal, non-hex");
 
-      it.skip("should have the right error", function(): void {
+      it.skip("should have the right error", function (): void {
         // Compare the thrown error to the actual syntax error
         // Trying to find a way to do this without the TypeScript compiler
         // failing on compile
       });
     });
 
-    context("with surrogates", function(): void {
+    context("with surrogates", function (): void {
       testParses(
         "\\uD800\\UDC00",
         "\uD800UDC00",
@@ -206,7 +206,7 @@ context("unraw", function(): void {
       testParses("\\uDA99\\udd80", "\uDA99\udd80", "lowercase");
       testParses("\\uDA99\\uDd80", "\uDA99\uDd80", "mixed case");
 
-      describe("handles deeper escape levels", function(): void {
+      describe("handles deeper escape levels", function (): void {
         testParses(
           "\\\\uDA99\\uDD80",
           "\\uDA99\uDD80",
@@ -219,7 +219,7 @@ context("unraw", function(): void {
         );
       });
 
-      describe("errors on invalid sequences", function(): void {
+      describe("errors on invalid sequences", function (): void {
         testErrors(
           "\\uDA99\\u",
           ErrorType.MalformedUnicode,
@@ -265,7 +265,7 @@ context("unraw", function(): void {
           "decimal, non-hex"
         );
 
-        it.skip("should have the right error", function(): void {
+        it.skip("should have the right error", function (): void {
           // Compare the thrown error to the actual syntax error
           // Trying to find a way to do this without the TypeScript compiler
           // failing on compile
@@ -274,7 +274,7 @@ context("unraw", function(): void {
     });
   });
 
-  describe("handles Unicode code point escape sequences", function(): void {
+  describe("handles Unicode code point escape sequences", function (): void {
     testParses(
       "\\U{0}",
       "U{0}",
@@ -295,12 +295,12 @@ context("unraw", function(): void {
       "after unicode escape - should not be considered surrogate"
     );
 
-    describe("handles deeper escape levels", function(): void {
+    describe("handles deeper escape levels", function (): void {
       testParses("\\\\u{5A5A}", "\\u{5A5A}", "even number of escapes");
       testParses("\\\\\\u{5A5A}", "\\\u{5A5A}", "odd number of escapes");
     });
 
-    describe("errors on invalid sequences", function(): void {
+    describe("errors on invalid sequences", function (): void {
       testErrors("\\u{}", ErrorType.MalformedUnicode, "zero digits");
       testErrors("\\u{FFFFFF}", ErrorType.CodePointLimit, "too high");
       testErrors(
@@ -319,7 +319,7 @@ context("unraw", function(): void {
         true
       );
 
-      it.skip("should have the right error", function(): void {
+      it.skip("should have the right error", function (): void {
         // Compare the thrown error to the actual syntax error
         // Trying to find a way to do this without the TypeScript compiler
         // failing on compile
@@ -327,21 +327,21 @@ context("unraw", function(): void {
     });
   });
 
-  describe("handles octal escape sequences", function(): void {
-    context("with octals disallowed", function(): void {
+  describe("handles octal escape sequences", function (): void {
+    context("with octals disallowed", function (): void {
       testParses("\\0", "\0", "not an octal sequence");
       testParses("\\800", "800", "not an octal sequence");
       testParses("\\+1", "+1", "not an octal sequence");
       testParses("\\-1", "-1", "not an octal sequence");
 
-      describe("errors on octal sequences", function(): void {
+      describe("errors on octal sequences", function (): void {
         testErrors("\\1", ErrorType.OctalDeprecation, "one digit", true);
         testErrors("\\00", ErrorType.OctalDeprecation, "two digits", true);
         testErrors("\\101", ErrorType.OctalDeprecation, "three digits", true);
       });
     });
 
-    context("with octals allowed", function(): void {
+    context("with octals allowed", function (): void {
       // NOTE: Due to disallowing octals in strict mode, octal sequences are
       // changed for matching unicode sequences in 'expected' side
 
@@ -357,34 +357,34 @@ context("unraw", function(): void {
     });
   });
 
-  describe("performs well on large text", function(): void {
+  describe("performs well on large text", function (): void {
     const testFilesDir = path.join(__dirname, "..", "test_files");
 
-    context("with no matches", function(): void {
+    context("with no matches", function (): void {
       let text: string;
 
-      before("load file", function(): void {
+      before("load file", function (): void {
         text = fs
           .readFileSync(path.join(testFilesDir, "no_matches.txt"))
           .toString();
       });
 
-      it("processes large text with no matches quickly", function(): void {
+      it("processes large text with no matches quickly", function (): void {
         this.timeout(500);
         unraw(text);
       });
     });
 
-    context("with matches", function(): void {
+    context("with matches", function (): void {
       let text: string;
 
-      before("load file", function(): void {
+      before("load file", function (): void {
         text = fs
           .readFileSync(path.join(testFilesDir, "matches.txt"))
           .toString();
       });
 
-      it("processes large text with matches quickly", function(): void {
+      it("processes large text with matches quickly", function (): void {
         this.timeout(500);
         unraw(text);
       });
