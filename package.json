@@ -64,14 +64,10 @@
   },
   "files": [
     "dist/index.d.ts",
-    "dist/index.d.ts.map",
     "dist/index.js",
-    "dist/index.js.map",
     "dist/index.min.js",
     "dist/errors.d.ts",
-    "dist/errors.d.ts.map",
     "dist/errors.js",
-    "dist/errors.js.map",
     "dist/errors.min.js"
   ],
   "keywords": [
