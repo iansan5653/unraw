@@ -1,12 +1,3 @@
-/*
-  eslint-disable max-len,
-  no-useless-escape,
-  mocha/no-setup-in-describe,
-  mocha/max-top-level-suites,
-  no-invalid-this,
-  space-before-function-paren
-*/
-
 import * as assert from "assert";
 import unraw from "./index";
 import {ErrorType, errorMessages} from "./index";

@@ -7,9 +7,9 @@
   },
   "extends": [
     "eslint:recommended",
-    "google",
     "plugin:@typescript-eslint/recommended",
-    "plugin:mocha/recommended"
+    "plugin:mocha/recommended",
+    "plugin:prettier/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -20,57 +20,9 @@
     "sourceType": "module"
   },
   "parser": "@typescript-eslint/parser",
-  "plugins": ["jsdoc", "mocha"],
+  "plugins": ["jsdoc", "mocha", "prettier"],
   "rules": {
-    "mocha/no-skipped-tests": "off",
-    "mocha/no-setup-in-decribe": "off",
-    //: Off because there are many times when you want hooks for a single case
-    "mocha/no-hooks-for-single-case": "off",
-    //: Off because Prettier controls this
-    "indent": "off",
-    "@typescript-eslint/indent": "off",
-    "linebreak-style": "off",
-    "@typescript-eslint/linebreak-style": "off",
-    //: Off because conflicts with jsdoc plugin
-    "valid-jsdoc": "off",
-    "require-jsdoc": "off",
-    "jsdoc/check-alignment": 1,
-    //: Off because https://github.com/gajus/eslint-plugin-jsdoc/issues/334
-    "jsdoc/check-indentation": 0,
-    "jsdoc/check-param-names": 1,
-    "jsdoc/check-syntax": 1,
-    "jsdoc/check-tag-names": 1,
-    "jsdoc/implements-on-classes": 1,
-    "jsdoc/match-description": 1,
-    "jsdoc/no-types": 1,
-    "jsdoc/require-jsdoc": "off",
-    "jsdoc/require-param": 1,
-    "jsdoc/require-param-description": 1,
-    "jsdoc/require-param-name": 1,
-    "comma-dangle": ["error", "never"],
-    "quotes": "off",
-    "no-console": "off",
-    "no-dupe-class-members": "off",
-    "no-param-reassign": "error",
-    "@typescript-eslint/prefer-for-of": "error",
-    "@typescript-eslint/no-parameter-properties": "off",
-    "@typescript-eslint/camelcase": "off",
-    "@typescript-eslint/array-type": ["error", {"default": "array-simple"}],
-    //: Off because sometimes using any makes sense; ie: `(...args: any[]) -> any`
-    "@typescript-eslint/no-explicit-any": "off",
-    "max-len": [
-      "error",
-      {
-        "code": 80,
-        "tabWidth": 2,
-        "ignoreComments": false,
-        "ignoreTrailingComments": false,
-        "ignoreUrls": true,
-        "ignoreStrings": false,
-        "ignoreTemplateLiterals": false,
-        "ignoreRegExpLiterals": true
-      }
-    ],
-    "operator-linebreak": ["off"]
+    "mocha/no-setup-in-describe": "off",
+    "mocha/no-skipped-tests": "off"
   }
 }

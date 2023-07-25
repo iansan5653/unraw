@@ -13,7 +13,7 @@
     "ensureCleanTree": "echo 'Checking to ensure all changes are committed...' && git diff --quiet --exit-code & git diff --quiet --cached --exit-code",
     "prepublishOnly": "npm run ensureCleanTree && npm run check",
     "postpublish": "cross-var git tag -a $npm_package_version -m \"See changelog.md for release notes.\" && git push --tags && cross-var git tag -d $npm_package_version",
-    "format": "prettier src/**/*.test.ts --write"
+    "format": "prettier src/**/*.ts --write"
   },
   "author": {
     "name": "Ian Sanders",
@@ -27,15 +27,15 @@
     "@typescript-eslint/parser": "^6.2.0",
     "cross-var": "^1.1.0",
     "eslint": "^8.45.0",
-    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-jsdoc": "^46.4.4",
     "eslint-plugin-mocha": "^10.1.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "mocha": "^10.2.0",
     "prettier": "^3.0.0",
     "ts-mocha": "^10.0.0",
     "typescript": "^5.1.6"
   },
-  "dependencies": {},
   "files": [
     "dist/index.d.ts",
     "dist/index.js",
