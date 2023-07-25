@@ -125,7 +125,7 @@ Pull requests are always welcome, although to increase your chances of your
 contribution being accepted, opening an issue and linking to it is always a
 good idea.
 
-Pull requests will not be merged unless the Azure Pipelines build succeeds.
+Pull requests will not be merged unless the GitHub Actions build succeeds.
 This means that all checks must pass and code must be free of lint errors. To
 quickly confirm that it will, just run:
 
