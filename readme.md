@@ -53,25 +53,6 @@ unraw("\\n");
 errorMessages.get(ErrorType.MalformedUnicode);
 ```
 
-### Usage in the Browser
-
-You can embed it (minified) on a webpage with
-[RequireJS](https://requirejs.org/). The module is available on
-[UNPKG](https://unpkg.com) at https://unpkg.com/unraw:
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-<script>
-  require(["https://unpkg.com/unraw^1.2.3/dist/index.min.js"], function(unraw) {
-    unraw.unraw("\\n");
-    unraw.errorMessages.get(unraw.ErrorType.MalformedUnicode);
-  });
-</script>
-```
-
-_Note_: Importing via the 'bare' url (`https://unpkg.com/unraw`) is not
-supported as it breaks references to other required files.
-
 ## Usage
 
 Usage is simple - the library exports a default function, `unraw`. The first
@@ -162,7 +143,6 @@ For your convenience, some other tasks are also provided in the `package.json`:
 - `npm run build` - Compiles TypeScript code to JavaScript
 - `npm run minify` - Generate minified JavaScript files from compiled files
 - `npm run test` - Quickly run tests using TypeScript code without compiling
-- `npm run testWithCoverage` - Run tests and generate coverage report
 - `npm run lint` - Check code for linting errors
 - `npm run check` - Check to ensure code will pass Pipelines checks (see above)
 - `npm run format` - Format code using Prettier
