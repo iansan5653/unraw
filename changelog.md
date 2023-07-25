@@ -2,6 +2,10 @@
 
 All notable outward-facing changes will be documented in this file.
 
+## 2.0.2
+
+- Remove sourcemaps and definitionmaps from the package
+
 ## 2.0.1
 
 - Update dependencies to fix security vulnerabilities
