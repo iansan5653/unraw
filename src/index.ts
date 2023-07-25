@@ -181,7 +181,8 @@ function parseSingleCharacterCode(code: string): string {
  * 6. Octal code _NOTE: includes "0"._
  * 7. A single character (will never be \, x, u, or 0-3)
  */
-const escapeMatch = /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([^{][\s\S]{0,3})|u([\s\S]{0,4})|([0-3]?[0-7]{1,2})|([\s\S])|$)/g;
+const escapeMatch =
+  /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([^{][\s\S]{0,3})|u([\s\S]{0,4})|([0-3]?[0-7]{1,2})|([\s\S])|$)/g;
 
 /**
  * Replace raw escape character strings with their escape characters.
@@ -193,44 +194,47 @@ const escapeMatch = /\\(?:(\\)|x([\s\S]{0,2})|u(\{[^}]*\}?)|u([\s\S]{4})\\u([^{]
  * respective actual Unicode characters.
  */
 export function unraw(raw: string, allowOctals = false): string {
-  return raw.replace(escapeMatch, function(
-    _,
-    backslash?: string,
-    hex?: string,
-    codePoint?: string,
-    unicodeWithSurrogate?: string,
-    surrogate?: string,
-    unicode?: string,
-    octal?: string,
-    singleCharacter?: string
-  ): string {
-    // Compare groups to undefined because empty strings mean different errors
-    // Otherwise, `\u` would fail the same as `\` which is wrong.
-    if (backslash !== undefined) {
-      return "\\";
+  return raw.replace(
+    escapeMatch,
+    function (
+      _,
+      backslash?: string,
+      hex?: string,
+      codePoint?: string,
+      unicodeWithSurrogate?: string,
+      surrogate?: string,
+      unicode?: string,
+      octal?: string,
+      singleCharacter?: string
+    ): string {
+      // Compare groups to undefined because empty strings mean different errors
+      // Otherwise, `\u` would fail the same as `\` which is wrong.
+      if (backslash !== undefined) {
+        return "\\";
+      }
+      if (hex !== undefined) {
+        return parseHexadecimalCode(hex);
+      }
+      if (codePoint !== undefined) {
+        return parseUnicodeCodePointCode(codePoint);
+      }
+      if (unicodeWithSurrogate !== undefined) {
+        return parseUnicodeCode(unicodeWithSurrogate, surrogate);
+      }
+      if (unicode !== undefined) {
+        return parseUnicodeCode(unicode);
+      }
+      if (octal === "0") {
+        return "\0";
+      }
+      if (octal !== undefined) {
+        return parseOctalCode(octal, !allowOctals);
+      }
+      if (singleCharacter !== undefined) {
+        return parseSingleCharacterCode(singleCharacter);
+      }
+      throw new SyntaxError(errorMessages.get(ErrorType.EndOfString));
     }
-    if (hex !== undefined) {
-      return parseHexadecimalCode(hex);
-    }
-    if (codePoint !== undefined) {
-      return parseUnicodeCodePointCode(codePoint);
-    }
-    if (unicodeWithSurrogate !== undefined) {
-      return parseUnicodeCode(unicodeWithSurrogate, surrogate);
-    }
-    if (unicode !== undefined) {
-      return parseUnicodeCode(unicode);
-    }
-    if (octal === "0") {
-      return "\0";
-    }
-    if (octal !== undefined) {
-      return parseOctalCode(octal, !allowOctals);
-    }
-    if (singleCharacter !== undefined) {
-      return parseSingleCharacterCode(singleCharacter);
-    }
-    throw new SyntaxError(errorMessages.get(ErrorType.EndOfString));
-  });
+  );
 }
 export default unraw;
