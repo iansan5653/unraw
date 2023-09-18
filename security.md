@@ -5,16 +5,6 @@ ensure that goal, I keep the complexity of the library to an absolute minimum.
 
 There are no production dependencies used by this library.
 
-## Supported Versions
-
-I currently only support `1.2.x` for security updates. The module is still new,
-so there are no projects that depend on versions lower than this.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.2.x   | :white_check_mark: |
-| < 1.2   | :x:                |
-
 ## Reporting a Vulnerability
 
 Vulnerability reports will always be handled with absolute priority. The best
